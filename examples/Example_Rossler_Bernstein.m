@@ -10,6 +10,7 @@ disp("Start point is "), disp(start_point)
 
 [t,y] = ode45(@Rossler, [0:h:Tmax], start_point); % Getting attractor points array via Runge-Kutta ODE solver
 w = transpose(Rossler(0, y')); % Getting differentials for each point
+[y, ymin, ymax] = normalizeTo(y, 0, 1); 
 
 % x-z plane projection
 figure(1);
@@ -24,10 +25,11 @@ W = zeros(N,M);
 Y = zeros(N,M);
 
 for i = 1:N % Taking random points from attractor
-    id = randi(count);  % Index of data point
+    id = ceil(rand * count);  % Index of data point
     W(i,:) = w(id,:); % X
     Y(i,:) = y(id,:); % Y
 end
+
 
 % Plot sample points
 figure(1); hold on
@@ -37,15 +39,16 @@ scatter3(Y(:,1),Y(:,2),Y(:,3),23,'MarkerEdgeColor','g','MarkerFaceColor','y','Li
 eps = 1e-5;
 [~, O] = ApproxBM(Y, eps, deglexord(2,3)) % Use approximate Buchberger-Moller algorithm
 
-%Use LSM for fitting the equations with the proper coefficients
 eta = 1e-7;
 H = cell(1,3);
 T = cell(1,3);
 
+error("Not implemented yet")
+
 %reconstruct each equation
 for i = 1:3
     V = W(:,i);
-    [hi,tau] = delMinorTerms(Y,V,O,eta); %get equation and basis
+    #[hi,tau] = delMinorTerms(Y,V,O,eta); %get equation and basis
     V0 = EvalPoly(hi,Y,tau); 
     norm(V - V0) %check if norm is appropriate
     

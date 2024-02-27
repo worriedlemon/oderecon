@@ -9,9 +9,7 @@ function dx = oderecon(H,T,t,x)
 %   t is a scalar time value
 %   x is a colunm vector
     dx = x;
-    x = transpose(x);
-    [M,N] = size(H);
-    for i = 1:N
-        dx(i) = EvalPoly(H{1,i}, x, T{1,i});
+    for i = 1:size(H, 2)
+        dx(i) = EvalPoly(H{1,i}, x', T{1,i});
     end
 end

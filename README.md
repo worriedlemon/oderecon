@@ -31,12 +31,22 @@ $$\begin{cases}
 Then, we can solve this reconstructed system with a standard matlab solver like `ode45`. Such a solution is shown yellow in the right pane.
 
 ## Installation
-Download a zip file or via git, and then add the ODERECON directory to your search path:
+Download a zip file or via git, switch presend working directory to ODERECON directory and run `setup` script:
 
 ```matlab
->> addpath('C:\Users\...\Downloads\ODERECON')  
->> savepath
+>> setup
 ```
+
+Present working directory can be obtained with `pwd` command. Check whether the output is like `.../ODERECON`, where `...` substitutes your archive unpack folder.
+
+*Note*: if you are using **GNU Octave** instead of Matlab, run `setup` script with parameter `octave`:
+
+```matlab
+>> setup octave
+```
+
+This step will add all necessary paths for correct script execution.
+
 ## How to use
 
 Let us find the equations of the Lorenz system. First, generate a full trajectory with a stepsize $h=0.01$ from the initial point $(0.1,0,-0.1)^\top$:
