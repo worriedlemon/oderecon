@@ -31,10 +31,11 @@ $$\begin{cases}
 Then, we can solve this reconstructed system with a standard matlab solver like `ode45`. Such a solution is shown yellow in the right pane.
 
 ## Installation
-Download a zip file or via git, switch presend working directory to ODERECON directory and run `setup` script:
+Download a zip file or via git, switch present working directory to ODERECON directory and run `setup` script. If you want, save path not to execute the script next time:
 
 ```matlab
 >> setup
+>> savepath    %optional
 ```
 
 Present working directory can be obtained with `pwd` command. Check whether the output is like `.../ODERECON`, where `...` substitutes your archive unpack folder.

@@ -2,7 +2,7 @@ function h = IRLS(E,V,X,T,tol,alpha)
 %IRLS iteratively reweighted least squares
 % h = IRLS(E,V,X,T,tol, alpha)
 % where E are monomial values, V are regression values, X are observations, T are monomials, tol is tolerance, alpha
-% is the L1-regularization perameter
+% is the L1-regularization parameter
 % h is the vector of coefficients by monomials
 
 [N,M] = size(E);
