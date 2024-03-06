@@ -1,7 +1,7 @@
 %Reconstruction of Lorenz system using ABM algorithm and delMinorTerms
 %Use only 1 variable for reconstruction
 close all;
-rng shuffle
+rng_i shuffle
 M = 3; %dim
 %simulate Lorenz system
 Tmax = 45;

@@ -3,7 +3,7 @@
 close all
 warning off
 %rng default
-rng shuffle
+rng_i shuffle
 M = 4; %dim
 %simulate system
 Tmax = 0.01;

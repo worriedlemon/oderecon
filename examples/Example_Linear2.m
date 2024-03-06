@@ -1,5 +1,5 @@
 %Reconstruction of 2-dim linear system using ABM algorithm and delMinorTerms
-rng default;
+rng_i default;
 close all;
 
 %simulate Linear system

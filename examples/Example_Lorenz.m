@@ -1,6 +1,6 @@
 %Reconstruction of Lorenz system using ABM algorithm and delMinorTerms
 % rng default;
-rand_init;
+rng_i default;
 close all;
 
 %simulate Lorenz system

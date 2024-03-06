@@ -79,7 +79,7 @@ end
 
 function S = adds(V,S)
 Vnew = sum(V,1);
-if ~israwcontained(Vnew, S)
+if ~isrowcontained(Vnew, S)
    S = [S; Vnew];
 end
 end

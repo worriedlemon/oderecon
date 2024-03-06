@@ -1,5 +1,5 @@
 % Initializing Random Number Generator (octave support)
-rand_init;
+rng_i default;
 close all;
 
 % function to be reconstructed (Himmelblau)
@@ -39,22 +39,24 @@ legend("Initial function", "Data points")
 title(sprintf("Function reconstruction with %u points (order %u)", N, deg));
 
 % finding Bernstein base monomials values
-[tx, ax, bx] = affine_transform(rx, 0, 1);
-[ty, ay, by] = affine_transform(ry, 0, 1);
+c01 = [0 0; 1 1];
+[txy, c] = affine_transform([rx; ry]', c01);
 deg = 4;
 
 sigma = berndeg(deg, 2);
-B = bernbase([tx; ty], sigma);
+B = bernbase(txy, sigma);
 
 coefs = (B'*B)\B'*rf';
 disp("Bernstein coefficients are"); disp(coefs);
+
+disp("Domain:"); disp(c);
 
 % finding values of a reconstructed function
 f1 = zeros(length(x), length(y));
 for i = 1:length(x)
   for j = 1:length(y)
-    txy = [affine_transform(x(i), 0, 1, ax, bx); affine_transform(y(j), 0, 1, ay, by)];
-    f1(i, j) = bernbase(txy, sigma) * coefs;
+    txy1 = affine_transform([x(i); y(j)]', c01, c);
+    f1(i, j) = bernbase(txy1, sigma) * coefs;
   end
 end
 

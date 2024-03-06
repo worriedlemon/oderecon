@@ -1,5 +1,5 @@
 % Initializing Random Number Generator (octave support)
-rand_init;
+rng_i default;
 close all;
 
 % Rossler system Simulation
@@ -14,9 +14,7 @@ w = transpose(Rossler(0, y')); % Getting differentials for each point
 % x-z plane projection
 figure(1);
 plot3(y(:,1),y(:,2),y(:,3));
-xlabel('\itx');
-ylabel('\ity');
-zlabel('\itz');
+xlabel('\itx'); ylabel('\ity'); zlabel('\itz');
 
 N = 15; % Data points
 [count, M] = size(y); % Points count and dimensions

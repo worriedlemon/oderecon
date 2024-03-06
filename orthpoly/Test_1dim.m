@@ -1,5 +1,5 @@
 % Initializing Random Number Generator (octave support)
-rand_init;
+rng_i shuffle;
 close all;
 
 % function to be reconstructed
@@ -15,7 +15,7 @@ y = func(x);
 
 % taking N data points
 N = 5;
-rx = affine_transform(rand(1, N), a, b, 0, 1);
+rx = affine_transform(rand(1, N), [a; b], [0; 1]);
 ry = func(rx);
 
 % plotting points
@@ -26,18 +26,20 @@ hold on; grid on;
 
 % finding Bernstein base monomials values
 eps = 0.1;
-[tx, a1, b1] = affine_transform(rx, 0, 1);
+[tx, c] = affine_transform(rx, [0; 1]);
 deg = 3;
 
 sigma = berndeg(deg, 1);
-B = bernbase(tx, sigma);
+B = bernbase(tx', sigma);
 
 coefs = (B'*B)\B'*ry';
 disp("Bernstein coefficients are"); disp(coefs);
 eq = disp(coefs');
 
+disp("Domain:"); disp(c');
+
 % finding values of a reconstructed function
-y1 = (bernbase(affine_transform(x, 0, 1, a1, b1), sigma) * coefs)';
+y1 = (bernbase(affine_transform(x, [0; 1], c)', sigma) * coefs)';
 
 disp("Reconstructed function error:");
 err = norm(y - y1)

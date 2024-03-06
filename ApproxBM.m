@@ -67,7 +67,7 @@ end
 %order O w.r.t. sigma
 ind = zeros(1,k);
 for i = 1:k
-    [~, ind(i)] = israwcontained(O(i,:), sigma); %find positions of L(i,:) in sigma
+    [~, ind(i)] = isrowcontained(O(i,:), sigma); %find positions of L(i,:) in sigma
 end
 [~,I] = sort(ind); %sort positions
 O = O(I,:); %re-order O
