@@ -5,20 +5,20 @@ function p = EvalPoly(h, X, T, opt)
     %  h - coefficients by terms t, where t[i] is a monomial of the
     %  corresponding order, h size is L x Q
     %  T - ordered monomials, structure depends on polynomial basis (see opt)
-    %  opt is optional parameter, defining polynomial basis type ("x" or "bernstein"); default is "x" 
+    %  opt is optional parameter, defining polynomial basis type ('x' or 'bernstein'); default is 'x' 
     %
-    %  If opt is default ("x"):
+    %  If opt is default ('x'):
     %    T - L x M ordered monomials (e.g., w.r.t. degree-lexicographic order) like this, for 2-dimensional data:
     %     1    x    y    x^2   xy  y^2  x^2y  xy^2  x^2y^2
     %    [0 0; 1 0; 0 1; 2 0; 1 1; 0 2; 2 1;  1 2;  2 2]
-    %  If opt is "bernstein":
+    %  If opt is 'bernstein':
     %    T - L x 2*M ordered monomials like this, for 2-dimensional data (second degree):
     %     (1-x)^2    2(1-x)x      x^2     (1-x)(1-y)    (1-x)y       x(1-y)       xy       (1-y)^2     2(1-y)y      y^2
     %    [2 0 0 0;   2 0 1 0;   2 0 2 0;   1 1 0 0;     1 1 0 1;    1 1 1 0;    1 1 1 1;   0 2 0 0;    0 2 0 1;    0 2 0 2...]
     
     %get dimension
-    if ~exist("opt")
-        opt = "x";
+    if ~exist('opt', 'var')
+        opt = 'x';
     end
 
     [N, M] = size(X);
@@ -27,11 +27,11 @@ function p = EvalPoly(h, X, T, opt)
     p = zeros(N,Q); %evaluated polynomial
 
     switch opt
-        case "x"
+        case 'x'
             for i = 1:L
                p = p + h(i,:).*prod(X.^repmat(T(i,:),N,1),2);
             end
-        case "bernstein"
+        case 'bernstein'
             for i = 1:L
                ns = T(i, 1:M);
                is = T(i, M + 1:2*M);
@@ -42,6 +42,6 @@ function p = EvalPoly(h, X, T, opt)
                p = p + h(i,:).*mon;
             end
         otherwise
-            error("No such polynomial implementation")
+            error('No such polynomial implementation')
     end
 end

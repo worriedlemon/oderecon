@@ -5,13 +5,13 @@ function sigma = berndeg(n, vc)
   for k = 1:size(ns, 1)
     nsc = ns(k,:);
     is = zeros(1, vc);
-    loop = 1;
+    loop = true;
     while loop
       sigma = [sigma; nsc is];
       try
         is = add_one(is, nsc);
       catch ME
-        loop = 0;
+        loop = ~loop;
       end
     end
   end
@@ -27,7 +27,7 @@ function x = add_one(x, s)
       x(cur) = 0;
       x(cur - 1) = x(cur - 1) + 1;
     else
-      error("Not possible to add another one")
+      error('Not possible to add another one')
     endif
   end
 end

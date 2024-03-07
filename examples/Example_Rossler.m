@@ -6,15 +6,18 @@ close all;
 Tmax = 100; % Time end
 h = 0.01; % Step
 start_point = [4, -2, 0]; % Initial point
-disp("Start point is "), disp(start_point)
+disp('Start point is '), disp(start_point)
 
 [t,y] = ode45(@Rossler, [0:h:Tmax], start_point); % Getting attractor points array via Runge-Kutta ODE solver
 w = transpose(Rossler(0, y')); % Getting differentials for each point
 
 % x-z plane projection
 figure(1);
-plot3(y(:,1),y(:,2),y(:,3));
+plot3(y(:,1),y(:,2),y(:,3), 'DisplayName', 'Rossler attractor'); hold on;
+plot3(start_point(1), start_point(2), start_point(3), '*r', 'DisplayName', 'Start point');
 xlabel('\itx'); ylabel('\ity'); zlabel('\itz');
+title('Dynamic Rossler system reconstruction')
+legend show;
 
 N = 15; % Data points
 [count, M] = size(y); % Points count and dimensions
@@ -28,7 +31,6 @@ for i = 1:N % Taking random points from attractor
 end
 
 % Plot sample points
-figure(1); hold on
 scatter3(Y(:,1),Y(:,2),Y(:,3),23,'MarkerEdgeColor','g','MarkerFaceColor','y','LineWidth',1.5);
 
 % Reconstruct order ideal
@@ -53,8 +55,7 @@ end
 
 %simulate results
 [~,y] = ode45(@(t,x)oderecon(H,T,t,x),[0:h:Tmax], start_point); %solve ODE
-figure(1);
-plot3(y(:,1),y(:,2),y(:,3),'-');
+plot3(y(:,1),y(:,2),y(:,3),'-', 'DisplayName', 'Reconstructed attractor');
 
 %display equations
 prettyABM(H,T)
