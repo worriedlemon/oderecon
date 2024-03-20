@@ -25,11 +25,11 @@ rx = x(ri,:);
 ry = y(ri,:);
 
 % Noise addition
-noise_amp = [0, 0];
-if norm(noise_amp) ~= 0
-    disp('Applying noise to points of magnitude:'); noise_amp
-    rx = rx + noise_amp(1) * (2 * rand(N, fc) - 1);;
-    ry = ry + noise_amp(2) * (2 * rand(N, 1) - 1);;
+noise_amp = [0.2, 0];
+if sum(noise_amp) > 0
+    disp('Applying noise to values... Magnitudes:'); noise_amp
+    rx = rx + noise_amp(1) * (2 * rand(N, fc) - 1);
+    ry = ry + noise_amp(2) * (2 * rand(N, 1) - 1);
 end
 
 % Plotting initial Rossler system and data points
@@ -48,9 +48,9 @@ c01 = repmat([0; 1], 1, fc);
 [tx, c] = affine_transform(rx, c01);
 
 % Use LSM for fitting the equations with the proper coefficients
-eta = 1e-3;
-H = cell(1,3);
-T = cell(1,3);
+eta = 1e-5;
+H = cell(1, fc);
+T = cell(1, fc);
 
 % Reconstruct each equation
 ry0 = ry;
@@ -72,8 +72,5 @@ err = vecnorm(ry - ry0)
 plot3(x1(:,1), x1(:,2), x1(:,3), '-y', 'DisplayName', 'Reconstructed function');
 title(sprintf('Rossler system reconstruction\nError: %s', disp(err)));
 
-% Output as equations
-prettyBernstein(H, T)
-
-% Saving equations for future processing
-% equations = strsplit(prettyBernstein(H, T, 0), ';')
+% Output as equations, saving equations for future processing
+equations = prettyBernstein(H, T, 0)

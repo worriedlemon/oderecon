@@ -1,21 +1,21 @@
-function varargout = prettyBernstein(H, T, varargin)
+function varargout = prettyBernstein(H, T, incf)
     [~, M] = size(H);
-    str = [];
-    incf = 1;
-    delim = ';';
-    nargin = nargin - 2;
     
-    if nargin >= 1
-        incf = varargin{1,1};
+    if ~exist('incf', 'var')
+        incf = 1;
     end
     
-    if nargin >= 2
-        delim = varargin{1,2};
+    if nargout > 0
+        eqs = cell(1,M);
     end
+    
+    
     
     for i = 1:M %loop by number of functions
         if incf
             str = ['f_' , num2str(i), ' = ']; %string for entries
+        else
+            str = [];
         end
         
         h = H{1,i};
@@ -98,13 +98,12 @@ function varargout = prettyBernstein(H, T, varargin)
         
         if ~nargout
             disp(str);
-            str = [];
-        elseif i ~= M
-            str = [str, delim];
+        else
+            eqs{1,i} = str;
         end
     end
     
     if nargout > 0
-        varargout{1} = str;
+        varargout{1} = eqs;
     end
 end

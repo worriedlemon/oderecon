@@ -1,4 +1,4 @@
-function varargout = prettyABM(H,T,varargin)
+function varargout = prettyABM(H,T,incf)
 %PRETTYABM prints results of ABM - LSM reconstruction in a simple
 %print-like form
 %   PRETTYABM(H,T)
@@ -7,23 +7,23 @@ function varargout = prettyABM(H,T,varargin)
 %   T is a cell array of size 1 x M, where M is dimension, containing basis
 %   terms obtained by delMinorTerms
 %   incf is logical: if True, then prefix 'f_n = ' added to n_th equation
-%   delim is char array representing delimiter for different equations
     [~, M] = size(H);
-    str = [];
-    incf = 1;
-    delim = ';';
     
-    if nargin >= 3
-        incf = varargin{1,3};
+    if ~exist('incf', 'var')
+        incf = 1
     end
     
-    if nargin >= 4
-        delim = varargin{1,4};
+    if nargout > 0
+        eqs = cell(1,M);
     end
+    
+    
     
     for i = 1:M %loop by number of functions
         if incf
             str = ['f_' , num2str(i), ' = ']; %string for entries
+        else
+            str = [];
         end
         
         h = H{1,i};
@@ -76,12 +76,12 @@ function varargout = prettyABM(H,T,varargin)
         
         if ~nargout
             disp(str);
-            str = [];
-        elseif i ~= M
-            str = [str, delim];
+        else
+            eqs{1,i} = str;
         end
     end
+    
     if nargout > 0
-        varargout{1} = str;
+        varargout{1} = eqs;
     end
 end
