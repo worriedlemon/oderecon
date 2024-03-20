@@ -24,10 +24,19 @@ N = 15; % Data points
 W = zeros(N,M);
 Y = zeros(N,M);
 
-for i = 1:N % Taking random points from attractor
-    id = randi(count);  % Index of data point
-    W(i,:) = w(id,:); % X
-    Y(i,:) = y(id,:); % Y
+% Taking random points from attractor
+id = randi(count, N, 1);  % Index of data point
+W(:) = w(id,:); % X
+Y(:) = y(id,:); % Y
+
+% Noise addition
+noise_amp = 0;
+if noise_amp ~= 0
+    noise_x = noise_amp * (rand(N, 3) * 2 - 1);
+    noise_y = noise_amp * (rand(N, 1) * 2 - 1);
+
+    Y = Y + noise_x;
+    W = W + noise_y;
 end
 
 % Plot sample points
@@ -35,10 +44,10 @@ scatter3(Y(:,1),Y(:,2),Y(:,3),23,'MarkerEdgeColor','g','MarkerFaceColor','y','Li
 
 % Reconstruct order ideal
 eps = 1e-5;
-[~, O] = ApproxBM(Y, eps, deglexord(2,3)) % Use approximate Buchberger-Moller algorithm
+[~, O] = ApproxBM(Y, eps, deglexord(2, 3)) % Use approximate Buchberger-Moller algorithm
 
 %Use LSM for fitting the equations with the proper coefficients
-eta = 1e-7;
+eta = 1e-5;
 H = cell(1,3);
 T = cell(1,3);
 
@@ -54,8 +63,8 @@ for i = 1:3
 end
 
 %simulate results
-[~,y] = ode45(@(t,x)oderecon(H,T,t,x),[0:h:Tmax], start_point); %solve ODE
-plot3(y(:,1),y(:,2),y(:,3),'-', 'DisplayName', 'Reconstructed attractor');
+[~,y] = ode45(@(t,x)oderecon(H, T, t, x), 0:h:Tmax, start_point); %solve ODE
+plot3(y(:, 1), y(:, 2), y(:, 3),'-', 'DisplayName', 'Reconstructed attractor');
 
 %display equations
-prettyABM(H,T)
+prettyABM(H, T)

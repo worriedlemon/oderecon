@@ -16,17 +16,7 @@ function dx = oderecon(H,T,t,x,opt)
         opt = 'x';
     end
     dx = x;
-    
-    switch opt
-        case 'x'
-            for i = 1:size(H, 2)
-                dx(i) = EvalPoly(H{1,i}, x', T{1,i});
-            end
-        case 'bernstein'
-            for i = 1:size(H, 2)
-                dx(i) = EvalBernstein(H{1,i}, x', T{1,i});
-            end
-        otherwise
-            error('No such polynomial implementation');
+    for i = 1:size(H, 2)
+        dx(i) = EvalPoly(H{1,i}, x', T{1,i}, opt);
     end
 end

@@ -44,7 +44,8 @@ c01 = [0 0; 1 1];
 deg = 4;
 
 sigma = berndeg(deg, 2);
-B = bernbase(txy, sigma);
+E = eye(size(sigma, 1));
+B = EvalPoly(E, txy, sigma, 'bernstein');
 
 coefs = (B'*B)\B'*rf';
 disp('Bernstein coefficients are'); disp(coefs);
@@ -56,7 +57,7 @@ f1 = zeros(length(x), length(y));
 for i = 1:length(x)
   for j = 1:length(y)
     txy1 = affine_transform([x(i); y(j)]', c01, c);
-    f1(i, j) = bernbase(txy1, sigma) * coefs;
+    f1(i, j) = EvalPoly(E, txy1, sigma, 'bernstein') * coefs;
   end
 end
 
