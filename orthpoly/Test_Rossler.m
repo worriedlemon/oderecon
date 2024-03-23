@@ -11,8 +11,8 @@ h = 0.01; % Step
 start_point = [4 -2 0]; % Initial point
 disp('Start point is '), disp(start_point)
 
-[t, x] = ode45(@Rossler, 0:h:Tmax, start_point);
-y = transpose(Rossler(0, x'));
+[t, x] = ode45(@Lorenz, 0:h:Tmax, start_point);
+y = transpose(Lorenz(0, x'));
 
 % Rossler system has fc = 3 variables (x, y, z) and every equation polynom degree is less or equal to 2
 fc = size(y, 2);
@@ -25,11 +25,11 @@ rx = x(ri,:);
 ry = y(ri,:);
 
 % Noise addition
-noise_amp = [0.2, 0];
+noise_amp = [0.05, 0.05];
 if sum(noise_amp) > 0
     disp('Applying noise to values... Magnitudes:'); noise_amp
-    rx = rx + noise_amp(1) * (2 * rand(N, fc) - 1);
-    ry = ry + noise_amp(2) * (2 * rand(N, 1) - 1);
+    rx = rx + noise_amp(1) * randn(N, fc);
+    ry = ry + noise_amp(2) * randn(N, 1);
 end
 
 % Plotting initial Rossler system and data points
@@ -48,7 +48,7 @@ c01 = repmat([0; 1], 1, fc);
 [tx, c] = affine_transform(rx, c01);
 
 % Use LSM for fitting the equations with the proper coefficients
-eta = 1e-5;
+eta = 1e-7;
 H = cell(1, fc);
 T = cell(1, fc);
 
