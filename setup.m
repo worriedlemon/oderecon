@@ -11,7 +11,7 @@ function setup(varargin)
         disp(pwd);
         disp('');
         
-        paths = {'', 'examples', 'misc', 'ode', 'int_diff', 'orthpoly'};
+        paths = {'', 'examples', 'misc', 'ode', 'int_diff', 'orthpoly', 'bernpoly'};
         
         for i = 1:size(paths, 2)
             incl = strcat(pwd, filesep, paths{1, i});
