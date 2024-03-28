@@ -11,18 +11,13 @@ a = -4; b = 4; % interval
 h = 0.1; % step
 
 % initial function plot
-x = a:h:b;
-y = x;
-f = zeros(length(x), length(y));
-for i = 1:length(x)
-  for j = 1:length(y)
-    f(i, j) = func(x(i), y(j));
-  end
-end
+[x,y] = meshgrid(a:h:b,a:h:b);
+f = func(x,y);
 
 figure(1);
 subplot(211);
-plot3(x, y, f, '.g');
+surf(x, y, f);
+colormap([0.6, 1, 1]);
 hold on; grid on;
 
 % taking N data points
@@ -34,7 +29,7 @@ ry = rand(1, N) * (b - a) + a;
 rf = func(rx, ry);
 
 % plotting points
-scatter3(rx, ry, rf, 'k');
+scatter3(rx, ry, rf, 35, 'marker', 'o', 'markeredgecolor', 'red', 'markerfacecolor', 'white', 'linewidth', 2);
 legend('Initial function', 'Data points')
 title(sprintf('Function reconstruction with %u points (order %u)', N, deg));
 
@@ -53,12 +48,10 @@ disp('Bernstein coefficients are'); disp(coefs);
 disp('Domain:'); disp(c);
 
 % finding values of a reconstructed function
-f1 = zeros(length(x), length(y));
-for i = 1:length(x)
-  for j = 1:length(y)
-    txy1 = affine_transform([x(i); y(j)]', c01, c);
-    f1(i, j) = EvalPoly(E, txy1, sigma, 'bernstein') * coefs;
-  end
+f1 = zeros(size(x));
+for i = 1:size(x,1)
+    txy1 = affine_transform([x(i,:); y(i,:)]', c01, c);
+    f1(i,:) = EvalPoly(E, txy1, sigma, 'bernstein') * coefs;
 end
 
 % finding error
@@ -67,8 +60,8 @@ err = norm(f - f1)
 
 % plotting reconstructed function
 subplot(212);
-plot3(x, y, f1, '.m');
+surf(x, y, f1);
 hold on; grid on;
-scatter3(rx, ry, rf, 'k');
+scatter3(rx, ry, rf, 35, 'marker', 'o', 'markeredgecolor', 'red', 'markerfacecolor', 'white', 'linewidth', 2);
 legend('Reconstructed function', 'Data points');
 title(sprintf('Error: %g', err))

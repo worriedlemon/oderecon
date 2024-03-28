@@ -37,11 +37,19 @@ function p = EvalPoly(h, X, T, opt)
                is = T(i, M + 1:2*M);
                mon = ones(N, Q);
                for k = 1:M
-                 mon = mon .* nchoosek(ns(k), is(k)).*X(:, k).^is(k).*(1 - X(:, k)).^(ns(k) - is(k));
+                 mon = mon .* orthogonalBernstein(X(:, k), is(k), ns(k));
                end
                p = p + h(i,:).*mon;
             end
         otherwise
             error('No such polynomial implementation')
     end
+end
+
+function p = orthogonalBernstein(t, i, n)
+    s = ones(size(t));
+    for k = 0:i
+        s = s + (-1)^k*nchoosek(2*n + 1 - k, i - k)*nchoosek(i, k)*t.^(i - k);
+    end
+    p = sqrt(2*(n - i) + 1)*(1 - t).^(n - i).*s;
 end

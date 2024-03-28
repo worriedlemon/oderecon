@@ -11,6 +11,7 @@ function rng_i(opt)
                 error('Argument could be "default" or "shuffle"');
         end
         rand('seed', seed);
+        randn('seed', seed);
     else
         rng opt;
     end

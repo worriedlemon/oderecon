@@ -24,14 +24,6 @@ ri = randi(size(y, 1), 1, N);
 rx = x(ri,:);
 ry = y(ri,:);
 
-% Noise addition
-noise_amp = [0.05, 0.05];
-if sum(noise_amp) > 0
-    disp('Applying noise to values... Magnitudes:'); noise_amp
-    rx = rx + noise_amp(1) * randn(N, fc);
-    ry = ry + noise_amp(2) * randn(N, 1);
-end
-
 % Plotting initial Rossler system and data points
 figure(1);
 plot3(x(:,1), x(:,2), x(:,3), 'b', start_point(1), start_point(2), start_point(3), 'r*');
@@ -48,7 +40,7 @@ c01 = repmat([0; 1], 1, fc);
 [tx, c] = affine_transform(rx, c01);
 
 % Use LSM for fitting the equations with the proper coefficients
-eta = 1e-7;
+eta = 1e-5;
 H = cell(1, fc);
 T = cell(1, fc);
 
