@@ -10,7 +10,7 @@ function varargout = prettyABM(H,T,incf)
     [~, M] = size(H);
     
     if ~exist('incf', 'var')
-        incf = 1
+        incf = 1;
     end
     
     if nargout > 0

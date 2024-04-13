@@ -1,6 +1,36 @@
-function orthogonality_test(F, deg, vc, a, b, eps)
-    if ~exist('eps', 'var')
-        eps = 1e-6;
+function orthogonality_test(F, deg, vc, a, b, varargin)
+    % -- orthogonality_test(F, deg, vc, a, b)
+    % -- orthogonality_test(F, deg, vc, a, b, output)
+    % -- orthogonality_test(F, deg, vc, a, b, output, eps)
+    % -- orthogonality_test(F, deg, vc, a, b, output, eps, nrm)
+    %     Runs an orthogonality test for given relation matrix
+    %     F, knowing degree deg, variable count vc and
+    %     orthogonality interval [a; b].
+    %
+    %     F - relation matrix
+    %     deg - polynomial degree
+    %     vc - dimension (variable count)
+    %     a, b - orthogonality interval [a; b]
+    %     output - 'verbose' or 'brief'
+    %     eps - parameter for skipping values < eps
+    %     nrm - norms of polynomials (default are ones)
+    
+    nargin = nargin - 5;
+    
+    output = 'verbose';
+    eps = 1e-6;
+    nrm = ones(size(F, 1), 1);
+    
+    if nargin > 0
+       output = varargin{1,1};
+    end
+    
+    if nargin > 1
+        eps = varargin{1,2};
+    end
+    
+    if nargin > 2
+        nrm = varargin{1,3};
     end
     
     N = size(F, 1);
@@ -10,13 +40,19 @@ function orthogonality_test(F, deg, vc, a, b, eps)
     R = zeros(N);
     for i = 1:N
         for j = 1:N
-            R(i, j) = scalarpoly(F(i, :), F(j, :), sigma2, interv);
-            if abs(R(i, j)) < eps
-                R(i, j) = 0;
-            end
+            R(i, j) = scalarpoly(F(i, :) / nrm(i), F(j, :) / nrm(j), sigma2, interv);
         end
     end
     disp("Orthogonality test:");
-    disp(R);
-    disp("\nIf matrix is identity, then the transormation is completed successfully\n")
+    switch output
+        case 'verbose'
+            disp(R .* (abs(R) >= eps));
+            disp("\nIf matrix is diagonal then the transormation is completed successfully\n");
+        otherwise
+            if isdiag(R .* (abs(R) >= eps))
+                disp('Success');
+            else
+                disp('Failure');
+            end
+    end
 end

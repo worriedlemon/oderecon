@@ -95,6 +95,8 @@ while 1/N*norm(V - EvalPoly(htmp, X, Ttmp, opt)) <= eta && L > 1
         end
     end
     
+    lmink = reindex(mink);
+    
     %exclude mink-th element from T
     if L > 1
         zeroingT(reindex(mink)) = 0;
@@ -121,8 +123,8 @@ while 1/N*norm(V - EvalPoly(htmp, X, Ttmp, opt)) <= eta && L > 1
     else
         %htmp = (E'*E + eta)\(E'*V);
         [Q,R] = qr(E);
-        Q1 = Q(:,1:L);
         R1 = R(1:L,1:L);
+        Q1 = Q(:,1:L);
         htmp = R1\(Q1'*V);
 
 
@@ -133,9 +135,11 @@ while 1/N*norm(V - EvalPoly(htmp, X, Ttmp, opt)) <= eta && L > 1
     end
 end
 
-if 1/N*norm(V - EvalPoly(htmp, X, Ttmp, opt)) <= eta && L == 1
+if 1/N*norm(V - EvalPoly(htmp, X, Ttmp, opt)) <= eta
     h = htmp;
     T = Ttmp;
+elseif L < L0
+    zeroingT(lmink) = 1;
 end
 
 if ~deleteminor

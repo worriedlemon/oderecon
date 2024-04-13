@@ -1,4 +1,15 @@
 function sc = scalarpoly(f, g, sigma2, interv)
+    % -- sc = scalarpoly(f, g, sigma2, interv)
+    %     Returns dot product of two polynomials with
+    %     weight function w(x) = 1 on a given interval.
+    %
+    %     f - polynomial of degree P1, dimension D1
+    %     g - polynomial of degree P2, dimension D2
+    %     sigma2 - order ideal of order `max(P1, P2)` and
+    %       dimension `max(D1, D2)`
+    %     interv - integration intervals in form of
+    %       2 x max(D1, D2) size.
+    
     assert(size(interv) == [2, size(sigma2, 2)], 'Interval should be of size 2 x N, where N is variable count');
     
     a = interv(1, :); b = interv(2, :);
