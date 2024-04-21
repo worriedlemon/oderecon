@@ -31,11 +31,12 @@ function varargout = prettyOrth(H,T,F,sigma,incf)
         if incf
             str = ['f_' , num2str(i), ' = ']; %string for entries
         else
-            str = [];
+            str = char([]);
         end
         
         h = H{1,i};
         t = T{1,i};
+        [~, vc] = size(t);
         [N, ~] = size(h); %number of terms
         for j = 1:N %loop by number of terms
             flag1 = 0; %flag, if 1 then do not draw * before monomial
@@ -80,7 +81,7 @@ function varargout = prettyOrth(H,T,F,sigma,incf)
                 end
             end
             
-            bufstr = [];
+            bufstr = char([]);
             for k = 1:L % display entries
                 if F(ind,k) ~= 0
                     if ~isempty(bufstr)
@@ -114,7 +115,7 @@ function varargout = prettyOrth(H,T,F,sigma,incf)
                         end
                     end
                     
-                    for k2 = 1:M
+                    for k2 = 1:vc
                         if sigma(k,k2) ~= 0
                             if flag1
                                 bufstr = [bufstr, ' x', num2str(k2)]; %x1, x2, x3 ...

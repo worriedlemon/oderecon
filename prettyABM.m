@@ -23,7 +23,7 @@ function varargout = prettyABM(H,T,incf)
         if incf
             str = ['f_' , num2str(i), ' = ']; %string for entries
         else
-            str = [];
+            str = char([]);
         end
         
         h = H{1,i};
