@@ -1,5 +1,7 @@
 function bch = dec2base_imp(X, K)
-   if (K <= 36)
+   if (K < 2)
+       error('Base must be greater than 1');
+   elseif (K <= 36)
        bch = dec2base(X, K) - '0';
    else
        digitsN = floor(log(X) / log(K)) + 1;

@@ -5,7 +5,7 @@ function sc = scalarpoly(f, g, sigma2, interv)
     %
     %     f - polynomial of degree P1, dimension D1
     %     g - polynomial of degree P2, dimension D2
-    %     sigma2 - order ideal of order `max(P1, P2)` and
+    %     sigma2 - order ideal of order `P1 + P2` and
     %       dimension `max(D1, D2)`
     %     interv - integration intervals in form of
     %       2 x max(D1, D2) size.
@@ -19,11 +19,9 @@ function sc = scalarpoly(f, g, sigma2, interv)
     sc = 0;
     for fmon = 1:cnt1
         if f(fmon) ~= 0
-            pr = 1;
-            shft = sigma2(fmon, :);
             for gmon = 1:cnt2
                 if g(gmon) ~= 0
-                    [~, ind] = max(prod(sigma2(gmon, :) + shft == sigma2, 2));
+                    [~, ind] = max(prod(sigma2(gmon, :) + sigma2(fmon, :) == sigma2, 2));
                     degs = sigma2(ind, :) + 1;
                     sc = sc + f(fmon) * g(gmon) * prod((b.^degs - a.^degs) ./ degs);
                 end

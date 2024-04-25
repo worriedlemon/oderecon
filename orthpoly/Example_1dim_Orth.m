@@ -33,7 +33,7 @@ E = eye(deg + 1);
 
 % orthogonality test - result F must be close to identity
 orthogonality_test(F, deg, 1, c01(1), c01(2), 1e-12);
-opt = {'orth', F};
+opt = {'orth', F, sigma};
 
 % getting values
 R = EvalPoly(E, rx', sigma, opt);
