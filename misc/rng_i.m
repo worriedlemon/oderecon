@@ -27,10 +27,6 @@ function rng_i(opt)
         rand('seed', seed);
         randn('seed', seed);
     else
-        if ~str
-            rng(opt);
-        else
-            rng opt;
-        end
+        rng(opt);
     end
 end

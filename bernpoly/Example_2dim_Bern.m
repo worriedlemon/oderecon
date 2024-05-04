@@ -40,7 +40,7 @@ deg = 4;
 
 sigma = berndeg(deg, 2);
 E = eye(size(sigma, 1));
-B = EvalPoly(E, txy, sigma, 'bernstein');
+B = EvalPolyBern(E, txy, sigma);
 
 coefs = (B'*B)\B'*rf';
 disp('Bernstein coefficients are'); disp(coefs);
@@ -51,7 +51,7 @@ disp('Domain:'); disp(c);
 f1 = zeros(size(x));
 for i = 1:size(x,1)
     txy1 = affine_transform([x(i,:); y(i,:)]', c01, c);
-    f1(i,:) = EvalPoly(E, txy1, sigma, 'bernstein') * coefs;
+    f1(i,:) = EvalPolyBern(E, txy1, sigma) * coefs;
 end
 
 % finding error

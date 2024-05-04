@@ -37,7 +37,6 @@ linapprox = sigma(1:vc + 1, :); % Monomials for linear approximation
 
 mc = size(sigma, 1); % Monomials count
 [F, norms] = orthpoly(deg, vc, 0, 1, 1e-9, 0); % Getting orthogonal polynomials matrix and norms
-opt = {'orth', F, sigma};
 
 coefs = zeros(mc, eqc);
 for eq = 1:eqc

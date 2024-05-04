@@ -31,7 +31,7 @@ deg = 3;
 
 sigma = berndeg(deg, 1);
 E = eye(size(sigma, 1));
-B = EvalPoly(E, tx', sigma, 'bernstein');
+B = EvalPolyBern(E, tx', sigma);
 
 coefs = (B'*B)\B'*ry';
 disp('Bernstein coefficients are'); disp(coefs);
@@ -40,7 +40,7 @@ eq = disp(coefs');
 disp('Domain:'); disp(c');
 
 % finding values of a reconstructed function
-y1 = (EvalPoly(E, affine_transform(x, [0; 1], c)', sigma, 'bernstein') * coefs)';
+y1 = (EvalPolyBern(E, affine_transform(x, [0; 1], c)', sigma) * coefs)';
 
 disp('Reconstructed function error:');
 err = norm(y - y1)

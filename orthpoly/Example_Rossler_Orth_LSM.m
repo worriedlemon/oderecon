@@ -33,6 +33,7 @@ legend('Rossler attractor', 'Start point', 'Random points');
 sigma = deglexord(deg, vc);
 [F, nrms] = orthpoly(deg, vc, 0, 1, 1e-9, 0);
 orthogonality_test(F, deg, vc, 0, 1, 'brief', 1e-6, nrms);
+
 opt = {'orth', F, sigma};
 
 % Use LSM for fitting the equations with the proper coefficients
@@ -42,11 +43,11 @@ T = cell(1, vc);
 
 % Reconstruct each equation
 ry0 = ry;
-E = EvalPoly(eye(10), rx, sigma, opt);
+E = EvalPolyOrth(eye(10), rx, sigma, F, sigma);
 h0 = (E'*E)\E'*ry;
 for i = 1:3
     [hi, tau] = delMinorTerms(rx, ry(:,i), sigma, eta, opt, h0(:, i)); % Get equation and basis
-    ry0(:,i) = EvalPoly(hi, rx, tau, opt); % Get values
+    ry0(:,i) = EvalPolyOrth(hi, rx, tau, F, sigma); % Get values
     
     H{1,i} = hi;
     T{1,i} = tau;

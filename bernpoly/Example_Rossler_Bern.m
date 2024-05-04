@@ -2,9 +2,6 @@ rng_i default;
 close all;
 warning off;
 
-% Using bernstein polynomials
-opt = 'bernstein';
-
 % Rossler system Simulation
 Tmax = 50; % Time end
 h = 0.01; % Step
@@ -47,8 +44,8 @@ T = cell(1, fc);
 % Reconstruct each equation
 ry0 = ry;
 for i = 1:3
-    [hi, tau] = delMinorTerms(tx, ry(:,i), sigma, eta, opt); % Get equation and basis
-    ry0(:,i) = EvalPoly(hi, tx, tau, opt); % Get values
+    [hi, tau] = delMinorTerms(tx, ry(:,i), sigma, eta, 'bernstein'); % Get equation and basis
+    ry0(:,i) = EvalPolyBern(hi, tx, tau); % Get values
     
     H{1,i} = hi;
     T{1,i} = tau;
@@ -59,7 +56,7 @@ disp('System reconstruction error:');
 err = vecnorm(ry - ry0)
 
 % Solving scary ODE in Bernstein polynomials
-[~, x1] = ode45(@(t,x)oderecon(H, T, t, affine_transform(x', c01, c)', opt), 0:h:Tmax, start_point); %solve ODE
+[~, x1] = ode45(@(t,x)oderecon(H, T, t, affine_transform(x', c01, c)', 'bernstein'), 0:h:Tmax, start_point); %solve ODE
 
 plot3(x1(:,1), x1(:,2), x1(:,3), '-y', 'DisplayName', 'Reconstructed function');
 title(sprintf('Rossler system reconstruction\nError: %s', disp(err)));

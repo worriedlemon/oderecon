@@ -15,21 +15,21 @@ function orthogonality_test(F, deg, vc, a, b, varargin)
     %     eps - parameter for skipping values < eps
     %     nrm - norms of polynomials (default are ones)
     
-    nargin = nargin - 5;
+    narg = nargin - 5;
     
     output = 'verbose';
     eps = 1e-6;
     nrm = ones(size(F, 1), 1);
     
-    if nargin > 0
+    if narg > 0
        output = varargin{1,1};
     end
     
-    if nargin > 1
+    if narg > 1
         eps = varargin{1,2};
     end
     
-    if nargin > 2
+    if narg > 2
         nrm = varargin{1,3};
     end
     

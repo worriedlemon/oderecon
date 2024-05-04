@@ -32,18 +32,17 @@ sigma = deglexord(deg, 1);
 E = eye(deg + 1);
 
 % orthogonality test - result F must be close to identity
-orthogonality_test(F, deg, 1, c01(1), c01(2), 1e-12);
-opt = {'orth', F, sigma};
+orthogonality_test(F, deg, 1, c01(1), c01(2), 1e-12)
 
 % getting values
-R = EvalPoly(E, rx', sigma, opt);
+R = EvalPolyOrth(E, rx', sigma, F, sigma);
 
 coefs = (R'*R)\R'*ry';
 disp('Coefficients are'); disp(coefs);
 eq = disp(coefs');
 
 % finding values of a reconstructed function
-y1 = (EvalPoly(E, x', sigma, opt) * coefs)';
+y1 = (EvalPolyOrth(E, x', sigma, F, sigma) * coefs)';
 
 disp('Reconstructed function error:');
 err = norm(y - y1)

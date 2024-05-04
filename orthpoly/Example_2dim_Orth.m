@@ -43,17 +43,16 @@ E = eye(size(sigma, 1));
 
 % Orthogonality test -- must be close to identity
 orthogonality_test(F, deg, vc, c01(1), c01(2));
-opt = {'orth', F, sigma};
 
 % getting values
-R = EvalPoly(E, [rx; ry]', sigma, opt);
+R = EvalPolyOrth(E, [rx; ry]', sigma, F, sigma);
 coefs = (R'*R)\R'*rf';
 disp('Coefficients are'); disp(coefs);
 
 % finding values of a reconstructed function
 f1 = zeros(size(x));
 for i = 1:size(x,1)
-    f1(i,:) = EvalPoly(E, [x(i,:); y(i,:)]', sigma, opt) * coefs;
+    f1(i,:) = EvalPolyOrth(E, [x(i,:); y(i,:)]', sigma, F, sigma) * coefs;
 end
 
 % finding error

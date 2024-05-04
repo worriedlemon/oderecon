@@ -28,8 +28,8 @@ function p = EvalPoly(h, X, T, varargin)
     %    [2 0 0 0;   2 0 1 0;   2 0 2 0;   1 1 0 0;     1 1 0 1;    1 1 1 0;    1 1 1 1;   0 2 0 0;    0 2 0 1;    0 2 0 2...]
     
     opt = 'x';
-    nargin = nargin - 3;
-    if nargin > 0
+    narg = nargin - 3;
+    if narg > 0
         opt = varargin{1, 1};
         try
             if strcmp(opt{1,1}, 'orth')
@@ -42,7 +42,7 @@ function p = EvalPoly(h, X, T, varargin)
             opt = opt{1,1};
         catch ME
             if strcmp(opt, 'orth')
-                error("If option is 'orth', then relation matrix also needed. Values should be packed in cell like {'orth', F}.")
+                error("If option is 'orth', then relation matrix is also needed. Values should be packed in cell like {'orth', F}.")
             end
         end
     end
@@ -58,24 +58,9 @@ function p = EvalPoly(h, X, T, varargin)
                 p = p + h(i,:) .* prod(X.^repmat(T(i,:), N, 1), 2);
             end
         case 'orth'
-            idx = zeros(1, L);
-            for i = 1:L
-                [~, idn] = max(prod(sigma == T(i, :), 2));
-                idx(i) = idn;
-            end
-            for i = 1:L
-                p = p + h(i, :) .* EvalPoly(F(idx(i), :)', X, sigma);
-            end
+            p = EvalPolyOrth(h, X, T, F, sigma);
         case 'bernstein'
-            for i = 1:L
-                ns = T(i, 1:M);
-                is = T(i, M + 1:2*M);
-                mon = ones(N, Q);
-                for k = 1:M
-                    mon = mon .* nchoosek(ns(k), is(k)).*X(:, k).^is(k).*(1 - X(:, k)).^(ns(k) - is(k));
-                end
-                p = p + h(i,:).*mon;
-            end
+            p = EvalPolyBern(h, X, T);
         otherwise
             error('No such polynomial implementation')
     end

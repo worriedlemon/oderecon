@@ -5,7 +5,7 @@ warning off;
 % Rossler system Simulation
 start_point = [4 -2 0]; % Initial point
 h = 0.1; % Step
-Tspan = [10, 100:100:2000];
+Tspan = [10, 100:100:1000];
 
 deg = 2; % Degree of reconstructed function
 vc = 3; % Variables count
@@ -25,7 +25,7 @@ for i = 1:length(Tspan); % Time max
     Ns(i) = length(t);
 
     tic; % Timer start
-    E = EvalPoly(orthpoly_t(deg, vc, t, x)', x, sigma); % Getting orthogonal polynomials matrix and norms
+    E = EvalPoly(orthpoly_t(deg, vc, t, x)', x, sigma);
     coefs = zeros(mc, eqc);
     for j = 1:mc
         coefs(j, :) = trapz(t, E(:, j) .* y);

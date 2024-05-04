@@ -1,4 +1,4 @@
-function [F, nrms] = orthpoly_t(deg, vc, t, x_t, varargin)
+function [F, nrms] = orthpoly_t(deg, vc, t, x_t, nrm)
     % -- F = ORTHPOLY(deg, vc, t, x_y)
     % -- F = ORTHPOLY(deg, vc, t, x_y, nrm)
     % -- [F, nrms] = ORTHPOLY(____)
@@ -15,11 +15,8 @@ function [F, nrms] = orthpoly_t(deg, vc, t, x_t, varargin)
     %       dot product will be Kroneckers symbol)
     
     
-    nrm = 1;
-    
-    nargin = nargin - 4;
-    if nargin > 0
-        nrm = varargin{1, 1};
+    if ~exist('nrm', 'var')
+        nrm = 1;
     end
     
     sigma = deglexord(deg, vc);
@@ -29,10 +26,9 @@ function [F, nrms] = orthpoly_t(deg, vc, t, x_t, varargin)
     
     for i = 1:N
         for k = 1:i-1
-            E = EvalPoly(F(i, :)', x_t, sigma) .* EvalPoly(F(k, :)', x_t, sigma);
-            temp = trapz(t, E) .* F(k, :);
+            n = EvalPoly(F(k, :)', x_t, sigma);
+            temp = trapz(t, EvalPoly(F(i, :)', x_t, sigma) .* n) .* F(k, :);
             if ~nrm
-                n = EvalPoly(F(k, :)', x_t, sigma);
                 temp = temp / trapz(t, n .^ 2);
             end
             F(i, :) = F(i, :) - temp;

@@ -19,11 +19,11 @@ function [F, nrms] = orthpoly(deg, vc, a, b, varargin)
     eps = 1e-12;
     nrm = 1;
     
-    nargin = nargin - 4;
-    if nargin > 0
+    narg = nargin - 4;
+    if narg > 0
         eps = varargin{1, 1};
     end
-    if nargin > 1
+    if narg > 1
         nrm = varargin{1,2};
     end
     
