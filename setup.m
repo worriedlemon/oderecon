@@ -23,7 +23,7 @@ function setup(varargin)
         dirl = dir;
         paths = {''};
         for i = 1:length(dir)
-            if isfolder(dirl(i).name) && dirl(i).name(1) != '.'
+            if isfolder(dirl(i).name) && dirl(i).name(1) ~= '.'
                 paths = {paths{1:length(paths)}, dirl(i).name};
             end
         end
@@ -40,7 +40,7 @@ function setup(varargin)
         format short g;
         disp('Set "format short g"');
     else
-        warning(sprintf('Invalid argument "%s" skipped', argument));
+        warning('Invalid argument "%s" skipped', argument);
     end
     
     disp('');

@@ -130,7 +130,7 @@ function varargout = prettyOrth(H,T,F,sigma,incf)
                     end
                 end
             end
-            if (isempty(bufstr) || bufstr == '-')
+            if isempty(bufstr) || strcmp(bufstr, '-')
                 bufstr = [bufstr, '1'];
             end
             str = [str, bufstr];

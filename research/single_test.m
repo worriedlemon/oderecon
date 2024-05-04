@@ -17,25 +17,25 @@ Tmax = 100;
 h = 0.01;
 [~, x] = ode45(sys, 0:h:Tmax, [4 -2 0]);
 
-vc = int8(size(x, 2));
-deg = int8(2);
+vc = size(x, 2);
+deg = 2;
 sigma = deglexord(deg, vc);
 
 N = int32(12);
 N1 = int32(size(sigma, 1));
 
 eps = 0.1;
-tol = 1e-7;
+tol = 1e-5;
 
 Kiter = 1000;
-Koff = 1;
+Koff = 3;
 rng_i(Koff);
 
 sx = 0;
 sorth = 0;
 
 polynomial_options = {'x', 'orth'};
-F = orthpoly(deg, vc, 0, 1, 1e-9, 0);
+F = orthpoly(deg, deglexord(deg * 2, vc), 0, 1, 1e-9, 0);
 
 % singlify
 F = single(F);
@@ -74,5 +74,5 @@ end
 
 close(wh);
 disp("Success rate:")
-disp(sprintf("x -> %0.3f%%", sx / Kiter * 100))
-disp(sprintf("orth -> %0.3f%%", sorth / Kiter * 100))
+fprintf("x -> %0.3f%%\n", sx / Kiter * 100)
+fprintf("orth -> %0.3f%%\n", sorth / Kiter * 100)

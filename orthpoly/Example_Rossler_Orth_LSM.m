@@ -31,7 +31,7 @@ legend('Rossler attractor', 'Start point', 'Random points');
 
 % Getting order ideal, constructing orthogonal polynomials basis
 sigma = deglexord(deg, vc);
-[F, nrms] = orthpoly(deg, vc, 0, 1, 1e-9, 0);
+[F, nrms] = orthpoly(deg, [sigma; deglexord(deg + 1, deg * 2, vc)], 0, 1, 1e-9, 0);
 orthogonality_test(F, deg, vc, 0, 1, 'brief', 1e-6, nrms);
 
 opt = {'orth', F, sigma};
@@ -54,13 +54,16 @@ for i = 1:3
 end
 
 disp('System reconstruction error:');
-err = vecnorm(ry - ry0)
+err = vecnorm(ry - ry0) %#ok
 
 % Solving ODE
 [~, x1] = ode45(@(t,x)oderecon(H, T, t, x, opt), 0:h:Tmax, start_point);
 
 plot3(x1(:,1), x1(:,2), x1(:,3), '-y', 'DisplayName', 'Reconstructed function');
-title(sprintf('Rossler system reconstruction\nError: %s', disp(err)));
+title(sprintf('Rossler system reconstruction\nError: %s', num2str(err)));
+
+% Text output
+prettyOrth(H, T, F, sigma, 0)
 
 % Output as equations, saving equations for future processing
-equations = prettyOrth(H, T, F, sigma, 0)
+%equations = prettyOrth(H, T, F, sigma, 0)

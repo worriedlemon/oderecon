@@ -36,17 +36,17 @@ deleteminor = 1;
 [N, ~] = size(X);
 [L, M] = size(O);
 
-nargin = nargin - 4;
+narg = nargin - 4;
 
-if nargin >= 1
+if narg >= 1
     opt = varargin{1,1};
 end
 
-if nargin >= 2
+if narg >= 2
     h = varargin{1,2};
 end
 
-if nargin >= 5
+if narg >= 5
     irls = varargin{1,5};
 end
 
@@ -59,11 +59,11 @@ if nargin <= 1
     end
 end
 
-if nargin == 3
+if narg == 3
     deleteminor = varargin{1,3};
 end
 
-if nargin == 4
+if narg == 4
     alp = varargin{1,4};
 end
 

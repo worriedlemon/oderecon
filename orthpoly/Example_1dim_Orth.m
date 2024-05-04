@@ -27,8 +27,8 @@ hold on; grid on;
 % constructing orthogonal polynomials
 deg = 3;
 c01 = [0; 1];
-F = orthpoly(deg, 1, c01(1), c01(2));
 sigma = deglexord(deg, 1);
+F = orthpoly(deg, [sigma; deglexord(deg + 1, deg * 2, 1)], c01(1), c01(2));
 E = eye(deg + 1);
 
 % orthogonality test - result F must be close to identity
@@ -39,7 +39,7 @@ R = EvalPolyOrth(E, rx', sigma, F, sigma);
 
 coefs = (R'*R)\R'*ry';
 disp('Coefficients are'); disp(coefs);
-eq = disp(coefs');
+eq = num2str(coefs');
 
 % finding values of a reconstructed function
 y1 = (EvalPolyOrth(E, x', sigma, F, sigma) * coefs)';

@@ -10,7 +10,7 @@ b = 4;
 span = (a:h:b)';
 [x1, x2] = meshgrid(span);
 x = [reshape(x1, length(span)^2, 1), reshape(x2, length(span)^2, 1)];
-clear x1, x2;
+clear x1 x2;
 y = sys(x(:, 1), x(:, 2));
 
 deg = 4; % Degree of reconstructed function
@@ -36,7 +36,7 @@ sigma = deglexord(deg, vc); % Ordered monomials
 linapprox = sigma(1:vc + 1, :); % Monomials for linear approximation
 
 mc = size(sigma, 1); % Monomials count
-[F, norms] = orthpoly(deg, vc, 0, 1, 1e-9, 0); % Getting orthogonal polynomials matrix and norms
+[F, norms] = orthpoly(deg, [sigma; deglexord(deg + 1, deg * 2, vc)], 0, 1, 1e-9, 0); % Getting orthogonal polynomials matrix and norms
 
 coefs = zeros(mc, eqc);
 for eq = 1:eqc
@@ -57,7 +57,7 @@ for eq = 1:eqc
             % Finding indexes of points which fall inside of bounded cube
             idx = find(prod(tx <= bounds(2, :) & tx >= bounds(1, :), 2));
             
-            if length(idx) == 0
+            if isempty(idx)
                 w = 1;
                 E = 0;
             else
@@ -69,7 +69,7 @@ for eq = 1:eqc
                     % Trapezoid method
                     w = 1;
                     B = EvalPoly(eye(vc + 1), tx(idx, :), linapprox);
-                    pl = (B'*B)\B'*ry(idx, eq); % LSM for finding approximation plane
+                    pl = (B'*B + 1e-3 * eye(vc + 1))\B'*ry(idx, eq); % LSM for finding approximation plane
                     ps = bounds(1, :) + (dec2bin(transpose(0:2^vc - 1)) - '0') .* delta; % Magic for finding vertex points
                     E = sum(EvalPoly(pl, ps, linapprox) .* EvalPoly(F(i, :)', ps, sigma)); % Sum of values f * g_i
                 end
@@ -80,8 +80,8 @@ for eq = 1:eqc
 end
 coefs = coefs ./ (norms .^ 2); % Coefficients for orthogonal monomials (normalized function f(t), t = (x - a)/(b - a))
 
-H = mat2cell(coefs, [mc], repmat([1], 1, eqc));
-T = mat2cell(repmat(sigma, 1, eqc), [mc], repmat([vc], 1, eqc));
+H = mat2cell(coefs, mc, ones(1, eqc));
+T = mat2cell(repmat(sigma, 1, eqc), mc, repmat(vc, 1, eqc));
 
 x1 = affine_transform(x, c01, cfrom);
 y1 = EvalPoly(F' * coefs, x1, sigma);

@@ -40,14 +40,14 @@ function p = EvalPoly(h, X, T, varargin)
                 sigma = opt{1,3};
             end
             opt = opt{1,1};
-        catch ME
+        catch
             if strcmp(opt, 'orth')
                 error("If option is 'orth', then relation matrix is also needed. Values should be packed in cell like {'orth', F}.")
             end
         end
     end
 
-    [N, M] = size(X);
+    [N, ~] = size(X);
     [L, Q] = size(h);
 
     p = zeros(N,Q); %evaluated polynomial

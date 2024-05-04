@@ -1,7 +1,6 @@
-function [F, nrms] = orthpoly(deg, sigma2, a, b, varargin)
-    % -- F = ORTHPOLY(sigma2, a, b)
-    % -- F = ORTHPOLY(sigma2, a, b, eps)
-    % -- F = ORTHPOLY(sigma2, a, b, eps, nrm)
+function [F, nrms] = orthpoly_t(deg, vc, t, x_t, varargin)
+    % -- F = ORTHPOLY(deg, vc, t, x_y)
+    % -- F = ORTHPOLY(deg, vc, t, x_y, nrm)
     % -- [F, nrms] = ORTHPOLY(____)
     %     Returns relations matrix F, where the row
     %     describes polynomial coefficients. Also can
@@ -16,40 +15,34 @@ function [F, nrms] = orthpoly(deg, sigma2, a, b, varargin)
     %       dot product will be Kroneckers symbol)
     
     
-    eps = 1e-12;
     nrm = 1;
     
     narg = nargin - 4;
     if narg > 0
-        eps = varargin{1, 1};
-    end
-    if narg > 1
-        nrm = varargin{1,2};
+        nrm = varargin{1, 1};
     end
     
-    vc = size(sigma2, 2);
-    N = nchoosek(deg + vc, deg);
+    sigma = deglexord(deg, vc);
+    N = size(sigma, 1);
     F = eye(N);
     nrms = ones(N, 1);
-    interv = repmat([a; b], 1, vc);
     
     for i = 1:N
-        g = F(i, :);
         for k = 1:i-1
-            temp = scalarpoly(g, F(k, :), sigma2, interv) .* F(k, :);
+            n = EvalPoly(F(k, :)', x_t, sigma);
+            E = EvalPoly(F(i, :)', x_t, sigma) .* n;
+            temp = sum(E) .* F(k, :);
             if ~nrm
-                temp = temp / scalarpoly(F(k, :), F(k,:), sigma2, interv);
+                temp = temp / sum(n .^ 2);
             end
             F(i, :) = F(i, :) - temp;
         end
         
-        c = sqrt(scalarpoly(F(i, :), F(i, :), sigma2, interv));
+        c = sqrt(sum(EvalPoly(F(i, :)', x_t, sigma) .^ 2));
         if nrm
             F(i, :) = F(i, :) / c;
         else
             nrms(i) = c;
         end
     end
-    
-    F = F .* (abs(F) > eps);
 end

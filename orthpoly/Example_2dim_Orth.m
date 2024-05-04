@@ -37,8 +37,8 @@ title(sprintf('Function reconstruction with %u points (order %u)', N, deg));
 deg = 4;
 vc = 2;
 c01 = [0; 1];
-F = orthpoly(deg, vc, c01(1), c01(2));
 sigma = deglexord(deg, vc);
+F = orthpoly(deg, [sigma; deglexord(deg + 1, deg * 2, vc)], c01(1), c01(2));
 E = eye(size(sigma, 1));
 
 % Orthogonality test -- must be close to identity

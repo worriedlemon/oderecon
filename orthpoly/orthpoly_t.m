@@ -1,15 +1,15 @@
-function [F, nrms] = orthpoly_t(deg, vc, t, x_t, nrm)
-    % -- F = ORTHPOLY(deg, vc, t, x_y)
-    % -- F = ORTHPOLY(deg, vc, t, x_y, nrm)
+function [F, nrms] = orthpoly_t(sigma, t, x_t, nrm)
+    % -- F = orthpoly_t(sigma, t, x_y)
+    % -- F = orthpoly_t(sigma, t, x_y, nrm)
     % -- [F, nrms] = ORTHPOLY(____)
     %     Returns relations matrix F, where the row
-    %     describes polynomial coefficients. Also can
+    %     describes polynomial coefficients. This
+    %     algorithm constructs orthogonal polynomials
+    %     based on a time-dependent systems. Also can
     %     return norms of every polynomial nrms.
     %
-    %     deg - degree of a orthogonal polynomials
-    %     vc - dimension (variables count)
+    %     sigma - order ideal for polynomials
     %     a, b - orthogonality interval edge values [a; b]
-    %     eps - parameter for skipping values < eps
     %     nrm - logical value, indicating whether
     %       polynomials should be normalized (if so,
     %       dot product will be Kroneckers symbol)
@@ -19,7 +19,6 @@ function [F, nrms] = orthpoly_t(deg, vc, t, x_t, nrm)
         nrm = 1;
     end
     
-    sigma = deglexord(deg, vc);
     N = size(sigma, 1);
     F = eye(N);
     nrms = ones(N, 1);

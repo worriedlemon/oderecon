@@ -13,7 +13,7 @@ start_point = [4 -2 0]; % Initial point
 timespan = 0:h:Tmax;
 [~, x] = ode45(system, timespan, start_point);
 y = transpose(system(0, x'));
-#y = diff4(x, timespan);
+% y = diff4(x, timespan);
 
 vc = length(start_point);
 deg = 2;
@@ -31,7 +31,7 @@ fnum = listdlg("PromptString", 'Choose desired polynomial basis', "ListString", 
 assert(~isempty(fnum), 'Program execution stopped due to no given answer');
 
 opt = {polynomial_options{1, fnum}};
-disp(["Using \"", opt{1,1}, "\" polynomials"]);
+disp("Using '", opt{1,1}, "' polynomials");
 
 eta = 1e-5;
 switch opt{1,1}
@@ -56,6 +56,7 @@ clear eta polynomial_options;
 
 try
     close(fnum);
+catch
 end
 
 H = cell(1, vc);

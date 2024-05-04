@@ -1,34 +1,35 @@
-rng_i default;
 close all;
 warning off;
 
-% Rossler system Simulation
+% System Simulation
 start_point = [4 -2 0]; % Initial point
-Tmax = 10; % Time nd
-h = 0.1; % Step
+Tmax = 50; % Time nd
+h = 0.01; % Step
 
 [t, x] = ode45(@Rossler, 0:h:Tmax, start_point);
-y = transpose(Rossler(0, x'));
 
 deg = 2; % Degree of reconstructed function
 vc = size(x, 2); % Variables count
 eqc = size(y, 2); % Equations count
+sigma = deglexord(deg, vc);
 
-[F, nrms] = orthpoly_t(deg, vc, t, x, 0); % Getting orthogonal polynomials matrix and norms
+F = orthpoly_t(sigma, t, x); % Getting orthogonal polynomials matrix
 mc = size(F, 1); % Monomials count
 
 coefs = zeros(mc, eqc);
 for j = 1:mc
-    coefs(j, :) = trapz(t, EvalPoly(transpose(F(j, :) / nrms(j)), x, sigma) .* y);
+    E = EvalPoly(F(j, :)', x, sigma);
+    for i = 1:eqc
+        coefs(j, i) = trapz(x(:, i), E);
+    end
 end
 
-coefs = (F ./ nrms)' * coefs;
 
 disp("\nCoefficients:");
-coefs
+coefs = F' * coefs %#ok
 
-H = mat2cell(coefs, [mc], repmat([1], 1, eqc));
-T = mat2cell(repmat(sigma, 1, eqc), [mc], repmat([vc], 1, eqc));
+H = mat2cell(coefs, mc, ones(1, eqc));
+T = mat2cell(repmat(sigma, 1, eqc), mc, repmat(vc, 1, eqc));
 
 figure(1);
 plot3(x(:, 1), x(:, 2), x(:, 3), 'b');

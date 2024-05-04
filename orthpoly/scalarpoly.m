@@ -10,7 +10,7 @@ function sc = scalarpoly(f, g, sigma2, interv)
     %     interv - integration intervals in form of
     %       2 x max(D1, D2) size.
     
-    assert(size(interv) == [2, size(sigma2, 2)], 'Interval should be of size 2 x N, where N is variable count');
+    assert(all(size(interv) == [2, size(sigma2, 2)]), 'Interval should be of size 2 x N, where N is variable count');
     
     a = interv(1, :); b = interv(2, :);
     cnt1 = length(f);
