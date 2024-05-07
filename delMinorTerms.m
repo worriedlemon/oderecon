@@ -50,7 +50,7 @@ if narg >= 5
     irls = varargin{1,5};
 end
 
-if nargin <= 1
+if narg <= 1
     E = EvalPoly(eye(L), X, O, opt);
     if irls
         h = IRLS(E,V,X,O,eta,alp);
