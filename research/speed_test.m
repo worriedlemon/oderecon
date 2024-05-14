@@ -5,7 +5,7 @@ warning off;
 % Dynamic system Simulation
 start_point = [4 -2 0]; % Initial point
 h = 0.01; % Step
-Tspan = [10, 100:100:1000] * h * 10;
+Tspan = [10, 100:500:10000] * h * 10;
 
 deg = 2; % Degree of reconstructed function
 vc = 3; % Variables count
@@ -16,6 +16,7 @@ sigma = deglexord(deg, vc);
 
 Ns = zeros(length(Tspan), 1);
 Es = [Ns, Ns];
+Orths = Ns;
 
 for i = 1:length(Tspan) % Time max
     disp(i)
@@ -25,24 +26,30 @@ for i = 1:length(Tspan) % Time max
     Ns(i) = length(t);
 
     tic; % Timer start
-    [F, norms] = orthpoly_t(sigma, t, x, 0);
+    F = mytranspose(orthpoly_t(sigma, t, x));
+    Orths(i) = toc;
+
+    tic; % Timer start
+    E = EvalPoly(F, x, sigma);
+    
     coefs = zeros(mc, eqc);
     for eq = 1:eqc
         for j = 1:mc
-            coefs(j, eq) = trapz(x(:, eq), EvalPoly(transpose(F(j, :) / norms(j)), x, sigma));
+            coefs(j, eq) = trapz(x(:, eq), E(:, j));
         end
     end
 
-    %coefs = F' * coefs
+    coefs = mymult(F, coefs);
     Es(i, 1) = toc;
     
     tic;
     E = EvalPoly(eye(mc), x, sigma);
-    coefs = (E'*E)\E'*y;
+    coefs = mylsm(E, y);
     Es(i, 2) = toc; % timer end
 end
 
-semilogy(Ns, Es(:, 1), 'b', Ns, Es(:, 2), 'r');
-xlabel('Points count'); ylabel('Elapsed time, \t{s}');
+semilogy(Ns, Es(:, 1), 'b', Ns, Orths + Es(:, 1), 'g', Ns, Es(:, 2), 'r');
+grid on;
+xlabel('Points count \it{N}'); ylabel('Elapsed time \it{t}, s');
 title('Speed comparison between LSM and Orth');
-legend('Orth', 'LSM');
+legend('Orthogonal polynomials (algorithm only)', 'Orthogonal polynomials', 'LSM');

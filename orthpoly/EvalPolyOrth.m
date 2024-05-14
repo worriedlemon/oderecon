@@ -1,14 +1,13 @@
 function p = EvalPolyOrth(h, X, T, F, sigma)
-    [N, M] = size(X);
-    [L, Q] = size(h);
+    [mc, ~] = size(F);
+    h1 = zeros(mc, size(h, 2));
+    for i = 1:mc
+        flag = prod(sigma(i, :) == T, 2);
+        if any(flag)
+           [~, idn] = max(flag);
+           h1(i, :) = h(idn, :);
+        end
+    end
 
-    p = zeros(N,Q);
-    idx = zeros(1, L);
-    for i = 1:L
-        [~, idn] = max(prod(sigma == T(i, :), 2));
-        idx(i) = idn;
-    end
-    for i = 1:L
-        p = p + h(i, :) .* EvalPoly(F(idx(i), :)', X, sigma);
-    end
+    p = EvalPoly(F' * h1, X, sigma);
 end

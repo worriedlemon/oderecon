@@ -1,78 +1,58 @@
 warning off;
 
-sys = @Rossler;
-coefs = [...
-    0, 0, 0.2;...
-    0, 1, 0;...
-    -1, 0.2, 0;...
-    -1, 0, -5.7;...
-    0, 0, 0;...
-    0, 0, 0;...
-    0, 0, 1;...
-    0, 0, 0;...
-    0, 0, 0;...
-    0, 0, 0];
+Hlorenz = [0 -10 10 0 0 0 0 0 0 0; 0 28 -1 0 0 0 -1 0 0 0; 0 0 0 -8/3 0 1 0 0 0 0]';
+Hrossler = [0 0 -1 -1 0 0 0 0 0 0; 0 1 0.2 0 0 0 0 0 0 0; 0.2 0 0 -5.7 0 0 1 0 0 0]';
+sys = @Lorenz;
+sysname = 'Lorenz';
+Href = Hlorenz;
 
-Tmax = 100;
-h = 0.01;
-[~, x] = ode45(sys, 0:h:Tmax, [4 -2 0]);
+Tmax = 50;
+h = 1e-3;
 
-vc = size(x, 2);
+vc = 3;
+eqc = 3;
 deg = 2;
 sigma = deglexord(deg, vc);
+mc = size(sigma, 1);
 
-N = int32(12);
-N1 = int32(size(sigma, 1));
+Kiter = 100;
 
-eps = 0.1;
-tol = 1e-5;
-
-Kiter = 1000;
-Koff = 3;
-rng_i(Koff);
-
-sx = 0;
-sorth = 0;
-
-polynomial_options = {'x', 'orth'};
-F = orthpoly(deg, deglexord(deg * 2, vc), 0, 1, 1e-9, 0);
-
-% singlify
-F = single(F);
-x = single(x);
-%x = double(x); % keeping signal in double
-y = transpose(sys(0, x'));
-
+errt = zeros(1, Kiter);
+erro = errt;
 for K = 1:Kiter
-    wh = waitbar(K/Kiter);
+    disp(K);
 
-    ri = randi(size(y, 1), 1, N);
-    rx = x(ri,:); ry = y(ri,:);
+    [t, x] = ode45(sys, 0:h:Tmax, randn(1, 3));
+    x = single(x);
+    y = diff4(x, t);
     
-    for po = 1:2
-        opt = {polynomial_options{1, po}};
-        if strcmp(opt{1,1}, 'orth')
-            opt = {opt{1,1}, F, sigma};
-        end
-        
-        H = zeros(N1, vc);
-        
-        E = EvalPoly(eye(N1), rx, sigma, opt);
-        h0 = (E'*E)\E'*ry;
-        for i = 1:vc
-            [H(:, i), ~] = delMinorTerms(rx, ry(:,i), sigma, tol, opt, h0(:,i), 0);
-        end
-        
-        switch opt{1,1}
-            case 'x'
-                sx = sx + all(all(abs(H - coefs) <= eps));
-            case 'orth'
-                sorth = sorth + all(all(abs(F' * H - coefs) <= eps));
+    F = orthpoly_t(sigma, t, x);
+
+    E = EvalPoly(F', x, sigma);
+    Ho = zeros(mc, eqc);
+    for i = 1:eqc
+        for j = 1:mc
+            Ho(j, i) = trapz(x(:, i), E(:, j));
         end
     end
+
+    Ho = F' * Ho;
+
+    E = EvalPoly(eye(mc), x, sigma);
+    Ht = (E'*E)\E'*y;
+
+    errt(K) = norm(Ht - Href);
+    erro(K) = norm(Ho - Href);
 end
 
-close(wh);
-disp("Success rate:")
-fprintf("x -> %0.3f%%\n", sx / Kiter * 100)
-fprintf("orth -> %0.3f%%\n", sorth / Kiter * 100)
+figure
+subplot(121);
+histogram(errt, 10, 'FaceColor', 'b');
+grid on;
+title(['Errors of reconstruction (', sysname, ')', newline, 'Method: LSM']);
+ylabel('Norm error in coefficients');
+subplot(122)
+histogram(erro, 10, 'FaceColor', 'r');
+grid on;
+title(['Errors of reconstruction (', sysname, ')', newline, 'Method: Orthogonal Polynomials']);
+ylabel('Norm error in coefficients');
