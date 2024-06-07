@@ -24,8 +24,9 @@ for K = 1:Kiter
 
     [t, x] = ode45(sys, 0:h:Tmax, randn(1, 3));
     x = single(x);
-    y = diff4(x, t);
-    
+    %y = diff4(x, t);
+    y = [diff(x) / h; (x(end, :) - x(end - 1, :)) / h];
+
     F = orthpoly_t(sigma, t, x);
 
     E = EvalPoly(F', x, sigma);
@@ -47,12 +48,12 @@ end
 
 figure
 subplot(121);
-histogram(errt, 10, 'FaceColor', 'b');
+histogram(errt, 10, 'FaceColor', 'r', 'BinLimits', [0; 0.8]);
 grid on;
 title(['Errors of reconstruction (', sysname, ')', newline, 'Method: LSM']);
-ylabel('Norm error in coefficients');
-subplot(122)
-histogram(erro, 10, 'FaceColor', 'r');
+xlabel('Norm error in coefficients');
+subplot(122);
+histogram(erro, 10, 'FaceColor', 'b', 'BinLimits', [0; 0.8]);
 grid on;
 title(['Errors of reconstruction (', sysname, ')', newline, 'Method: Orthogonal Polynomials']);
-ylabel('Norm error in coefficients');
+xlabel('Norm error in coefficients');

@@ -1,108 +1,59 @@
 rng_i default;
 warning off;
 
+Hlorenz = [0 -10 10 0 0 0 0 0 0 0; 0 28 -1 0 0 0 -1 0 0 0; 0 0 0 -8/3 0 1 0 0 0 0]';
+Hrossler = [0 0 -1 -1 0 0 0 0 0 0; 0 1 0.2 0 0 0 0 0 0 0; 0.2 0 0 -5.7 0 0 1 0 0 0]';
 system = @Lorenz;
-eqs = 1;
-calc = 0;
-drawplt = 0;
+sysname = 'Lorenz';
+Href = Hlorenz;
 
 Tmax = 100; % Time end
-h = 0.01; % Step
-start_point = [4 -2 0]; % Initial point
+h = 1e-3; % Step
+start_point = [0.1 0 0.1]; % Initial point
 
-timespan = 0:h:Tmax;
-[~, x] = ode45(system, timespan, start_point);
+[t, x] = ode45(system, 0:h:Tmax, start_point);
 y = transpose(system(0, x'));
-% y = diff4(x, timespan);
 
-vc = length(start_point);
+[N, vc] = size(x);
+
+eqc = size(y, 2);
 deg = 2;
 
-noise_amp = input(['Input desired noise magnitude:', newline, '> ']);
+sigma = deglexord(deg, vc);
+mc = size(sigma, 1);
 
-N = 12;
-ri = randi(size(y, 1), 1, N);
-rx = x(ri,:) + noise_amp * randn(N, vc);
-ry = y(ri,:) + noise_amp * randn(N, 1);
-clear ri noise_amp;
-
-polynomial_options = {'x', 'bernstein', 'orth'};
-fnum = listdlg("PromptString", 'Choose desired polynomial basis', "ListString", polynomial_options);
-assert(~isempty(fnum), 'Program execution stopped due to no given answer');
-
-opt = {polynomial_options{1, fnum}};
-disp("Using '", opt{1,1}, "' polynomials");
-
-eta = 1e-5;
-switch opt{1,1}
-    case 'x'
-        tx = rx;
-        [~, sigma] = ApproxBM(x, eta, deglexord(deg, vc));
-    case 'bernstein'
-        c01 = repmat([0; 1], 1, vc);
-        [tx, c] = affine_transform(rx, c01);
-        sigma = berndeg(deg, vc);
-    case 'orth'
-        tx = rx;
-        [~, sigma] = ApproxBM(x, eta, deglexord(deg, vc));
-        
-        orthinterv = [0, 1];
-        [F, nrms] = orthpoly(deg, vc, orthinterv(1), orthinterv(2), 1e-9, 0);
-        opt = {opt{1,1}, F, sigma};
-        orthogonality_test(opt{1,2}, deg, vc, orthinterv(1), orthinterv(2), 'brief', 1e-6, nrms);
-        clear orthinterv F;
-end
-clear eta polynomial_options;
-
-try
-    close(fnum);
-catch
-end
-
-H = cell(1, vc);
-T = cell(1, vc);
-tol = 1e-5;
-
-disp('Reconstruction started...')
-for i = 1:vc
-    [hi, tau] = delMinorTerms(tx, ry(:,i), sigma, tol, opt);
-    norm(ry(:,i) - EvalPoly(hi, tx, tau, opt))
-    H{1,i} = hi;
-    T{1,i} = tau;
-end
-disp("OK.");
-
-if calc
-    disp("\nFinding values based on reconstructed equation...")
-    switch opt{1,1}
-        case 'x'
-            [~, x1] = ode45(@(t,x)oderecon(H, T, t, x, opt), timespan, start_point);
-        case 'orth'
-            [~, x1] = ode45(@(t,x)oderecon(H, T, t, x, opt), timespan, start_point);
-        case 'bernstein'
-            [~, x1] = ode45(@(t,x)oderecon(H, T, t, affine_transform(x', c01, c)', opt), timespan, start_point);
+noises = [1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 0.25, 0.5, 1, 2, 5, 10];
+errt = []; erro = [];
+for noise_amp = noises
+    rx = x + noise_amp * randn(N, vc);
+    ry = [diff(rx) / h; (rx(end, :) - rx(end - 1, :)) / h]; % first order
+    %ry = diff2(rx) / h; % second order
+    %ry = diff4(rx, t); % fourth order
+    
+    F = orthpoly_t(sigma, t, rx);
+    
+    Ho = zeros(mc, eqc);
+    for i = 1:eqc
+        E = EvalPoly(F', rx, sigma);
+        for j = 1:mc
+            %Ho(j, i) = trapz(t, E(:, j) .* ry(:, i));
+            Ho(j, i) = trapz(rx(:, i), E(:, j));
+        end
     end
+
+    B = EvalPoly(eye(mc), rx, sigma);
+    Ht = (B'*B)\B'*ry;
+    %errt = [errt norm(y - EvalPoly(Ht, x, sigma))];
+    errt = [errt norm(Ht - Href)];
+
+    Ht1 = F' * Ho;
+    erro = [erro norm(Ht1 - Href)];
+    %erro = [erro norm(y - EvalPoly(Ht1, x, sigma))];
 end
 
-if eqs
-    disp("\nEquations:")
-    switch opt{1,1}
-        case 'x'
-            prettyABM(H, T);
-        case 'orth'
-            prettyOrth(H, T, opt{1,2}, sigma);
-        case 'bernstein'
-            prettyBernstein(H, T);
-    end
-end
-
-if drawplt && calc
-    figure(fnum);
-    plot3(x(:,1), x(:,2), x(:,3), 'b', start_point(1), start_point(2), start_point(3), 'r*');
-    hold on;
-    scatter3(rx(:,1), rx(:,2), rx(:,3), 'k');
-    xlabel('\itx'); ylabel('\ity'); zlabel('\itz');
-    plot3(x1(:,1), x1(:,2), x1(:,3), 'y');
-    legend('Initial dynamic system', 'Start point', 'Random points', 'Reconstructed system');
-    title(sprintf('System reconstruction (%s)', opt{1,1}));
- end
+loglog(noises, errt, 'r', noises, erro, 'b');
+grid on;
+title(['Noise resistance (', sysname, ')']);
+legend('LSM', 'Orthogonal polynomials');
+xlabel('Noise magnitude');
+ylabel('Norm error in coefficients');

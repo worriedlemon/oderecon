@@ -47,7 +47,7 @@ T = cell(1,3);
 for i = 1:3
     V = W(:,i);
     [hi,tau] = delMinorTerms(Y,V,O,eta); %get equation and basis
-    V0 = EvalPoly(hi,Y,tau); 
+    V0 = EvalPoly(hi,Y,tau);
     norm(V - V0) %check if norm is appropriate
     
     H{1,i} = hi;
@@ -55,30 +55,11 @@ for i = 1:3
 end
 
 %simulate results
-[~,y] = ode45(@(t,x)oderecon(H,T,t,x),[0:h:Tmax],[0.1,0,-0.1]); %solve ODE
+[~,y] = ode45(@(t,x)oderecon(H,T,t,x), 0:h:Tmax,[0.1,0,-0.1]); %solve ODE
 figure(1);
 plot3(y(:,1),y(:,2),y(:,3),'-');
+title("");
 
 %display equations
 prettyABM(H,T)
-
-
-
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
  

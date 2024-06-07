@@ -25,8 +25,11 @@ mc = size(sigma, 1);
 noises = [1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 0.25, 0.5, 1, 2, 5, 10];
 errt = []; erro = [];
 for noise_amp = noises
-    rx = x + noise_amp * randn(N, vc);
-    ry = diff4(rx, t);
+    dmx = x - mean(x);
+    rx = x + noise_amp * randn(N, vc) .* dmx;
+    %ry = [diff(rx) / h; (rx(end, :) - rx(end - 1, :)) / h]; % first order
+    %ry = diff2(rx) / h; % second order
+    ry = diff4(rx, t); % fourth order
     
     F = orthpoly_t(sigma, t, rx);
     
