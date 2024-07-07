@@ -3,13 +3,13 @@ warning off;
 
 Hlorenz = [0 -10 10 0 0 0 0 0 0 0; 0 28 -1 0 0 0 -1 0 0 0; 0 0 0 -8/3 0 1 0 0 0 0]';
 Hrossler = [0 0 -1 -1 0 0 0 0 0 0; 0 1 0.2 0 0 0 0 0 0 0; 0.2 0 0 -5.7 0 0 1 0 0 0]';
-system = @Lorenz;
-sysname = 'Lorenz';
-Href = Hlorenz;
+system = @Rossler;
+sysname = 'Rossler';
+Href = Hrossler;
 
-Tmax = 100; % Time end
-h = 5e-3; % Step
-start_point = [0.1 0 0.1]; % Initial point
+Tmax = 50; % Time end
+h = 1e-2; % Step
+start_point = [4 -2 0]; % Initial point
 
 [t, x] = ode45(system, 0:h:Tmax, start_point);
 
@@ -41,14 +41,14 @@ end
 Ho = F' * Ho;
 
 Tmax = 100;
-h = 1e-3;
+h = 1e-2;
 t = 0:h:Tmax;
 N = length(t);
 
 [~, x] = ode45(system, t, start_point);
 xt_slave = [start_point; zeros(N - 1, vc)];
 xo_slave = xt_slave;
-sync_coef = 2 * [1 1 1];
+sync_coef = 1.25 * [1 1 1];
 for i = 1:N - 1
     disp(i)
 
@@ -63,11 +63,9 @@ for i = 1:N - 1
 end
 
 figure(1)
-semilogy(t, vecnorm(x - xt_slave, 2, 2));
+semilogy(t, vecnorm(x - xt_slave, 2, 2), 'r', t, vecnorm(x - xo_slave, 2, 2), 'b');
 grid on;
-title('Sync error (regular)')
-
-figure(2)
-semilogy(t, vecnorm(x - xo_slave, 2, 2));
-grid on;
-title('Sync error (orth)')
+title(['Synchronization error (', sysname, ')']);
+legend('LSM', 'Orthogonal polynomials');
+xlabel('Time $t$, sec', 'Interpreter', 'latex');
+ylabel('Synchronization error $\overline{\zeta}$', 'Interpreter', 'latex');

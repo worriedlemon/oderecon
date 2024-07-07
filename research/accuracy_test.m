@@ -11,7 +11,7 @@ Tmax = 50;
 Tmaxs = 10:10:100; % Time end
 hs = 10.^(-4:0.5:-1);
 h = 1e-3; % Step
-start_point = [0.5 0 0.5]; % Initial point
+start_point = [4 -2 0]; % Initial point
 
 nrm = zeros(3, length(hs));
 for i = 1:length(hs)
@@ -56,9 +56,9 @@ loglog(hs, nrm(1, :), 'r', hs, nrm(3, :), 'b');
 grid on;
 title(['Reconstruction error (', sysname, ')']);
 %xlabel('Time end \it{T}_{max}, s');
-xlabel('Time step \it\Delta{t}, s');
+xlabel('Time step \it{h}, s');
 ylabel('Error \it{\zeta}');
-legend('LSM', 'Orthogonal polynomials (var)')
+legend('LSM', 'Orthogonal polynomials')
 
 % figure(2);
 % %plot(Tmaxs, nrm(1, :), 'b--', Tmaxs, nrm(2, :), 'r--');

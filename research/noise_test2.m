@@ -3,13 +3,13 @@ warning off;
 
 Hlorenz = [0 -10 10 0 0 0 0 0 0 0; 0 28 -1 0 0 0 -1 0 0 0; 0 0 0 -8/3 0 1 0 0 0 0]';
 Hrossler = [0 0 -1 -1 0 0 0 0 0 0; 0 1 0.2 0 0 0 0 0 0 0; 0.2 0 0 -5.7 0 0 1 0 0 0]';
-system = @Lorenz;
-sysname = 'Lorenz';
-Href = Hlorenz;
+system = @Rossler;
+sysname = 'Rossler';
+Href = Hrossler;
 
-Tmax = 100; % Time end
-h = 1e-3; % Step
-start_point = [0.1 0 0.1]; % Initial point
+Tmax = 50; % Time end
+h = 1e-2; % Step
+start_point = [4 -2 0]; % Initial point
 
 [t, x] = ode45(system, 0:h:Tmax, start_point);
 y = transpose(system(0, x'));
@@ -27,9 +27,9 @@ errt = []; erro = [];
 for noise_amp = noises
     dmx = x - mean(x);
     rx = x + noise_amp * randn(N, vc) .* dmx;
-    %ry = [diff(rx) / h; (rx(end, :) - rx(end - 1, :)) / h]; % first order
+    ry = [diff(rx) / h; (rx(end, :) - rx(end - 1, :)) / h]; % first order
     %ry = diff2(rx) / h; % second order
-    ry = diff4(rx, t); % fourth order
+    %ry = diff4(rx, t); % fourth order
     
     F = orthpoly_t(sigma, t, rx);
     
@@ -54,7 +54,7 @@ end
 
 loglog(noises, errt, 'r', noises, erro, 'b');
 grid on;
-title(['Noise resistance (', sysname, ')']);
+title(['Heteroscedastic noise resistance (', sysname, ')']);
 legend('LSM', 'Orthogonal polynomials');
-xlabel('Noise magnitude');
-ylabel('Norm error in coefficients');
+xlabel('Average noise magnitude \sigma');
+ylabel('Coefficients error $\overline{\zeta}$', 'Interpreter', 'latex');

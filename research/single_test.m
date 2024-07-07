@@ -2,12 +2,12 @@ warning off;
 
 Hlorenz = [0 -10 10 0 0 0 0 0 0 0; 0 28 -1 0 0 0 -1 0 0 0; 0 0 0 -8/3 0 1 0 0 0 0]';
 Hrossler = [0 0 -1 -1 0 0 0 0 0 0; 0 1 0.2 0 0 0 0 0 0 0; 0.2 0 0 -5.7 0 0 1 0 0 0]';
-sys = @Lorenz;
-sysname = 'Lorenz';
-Href = Hlorenz;
+sys = @Rossler;
+sysname = 'Rossler';
+Href = Hrossler;
 
 Tmax = 50;
-h = 1e-3;
+hs = 1e-4*10.^(0:0.5:3);
 
 vc = 3;
 eqc = 3;
@@ -15,21 +15,21 @@ deg = 2;
 sigma = deglexord(deg, vc);
 mc = size(sigma, 1);
 
-Kiter = 100;
+N = length(hs);
 
-errt = zeros(1, Kiter);
+errt = zeros(1, N);
 erro = errt;
-for K = 1:Kiter
-    disp(K);
-
-    [t, x] = ode45(sys, 0:h:Tmax, randn(1, 3));
-    x = single(x);
+for k = 1:N
+    disp(k);
+    
+    t = single(0:hs(k):Tmax);
+    [~, x] = ode45(sys, t, [4 -2 0]);
     %y = diff4(x, t);
     y = [diff(x) / h; (x(end, :) - x(end - 1, :)) / h];
 
-    F = orthpoly_t(sigma, t, x);
+    F = single(orthpoly_t(sigma, t, x));
 
-    E = EvalPoly(F', x, sigma);
+    E = single(EvalPoly(F', x, sigma));
     Ho = zeros(mc, eqc);
     for i = 1:eqc
         for j = 1:mc
@@ -42,18 +42,13 @@ for K = 1:Kiter
     E = EvalPoly(eye(mc), x, sigma);
     Ht = (E'*E)\E'*y;
 
-    errt(K) = norm(Ht - Href);
-    erro(K) = norm(Ho - Href);
+    errt(k) = norm(Ht - Href);
+    erro(k) = norm(Ho - Href);
 end
 
-figure
-subplot(121);
-histogram(errt, 10, 'FaceColor', 'r', 'BinLimits', [0; 0.8]);
+figure(1)
+loglog(hs, errt + 1e-14, 'r', hs, erro + 1e-14, 'b');
 grid on;
-title(['Errors of reconstruction (', sysname, ')', newline, 'Method: LSM']);
-xlabel('Norm error in coefficients');
-subplot(122);
-histogram(erro, 10, 'FaceColor', 'b', 'BinLimits', [0; 0.8]);
-grid on;
-title(['Errors of reconstruction (', sysname, ')', newline, 'Method: Orthogonal Polynomials']);
-xlabel('Norm error in coefficients');
+title(['Reconstruction with reduced precision (', sysname, ')']);
+legend('LSM', 'Orthogonal Polynomials');
+xlabel('Simulation time step \it{h}'); ylabel('Coefficients error \zeta');

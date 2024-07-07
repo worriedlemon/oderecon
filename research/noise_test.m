@@ -7,9 +7,9 @@ system = @Lorenz;
 sysname = 'Lorenz';
 Href = Hlorenz;
 
-Tmax = 100; % Time end
-h = 1e-3; % Step
-start_point = [0.1 0 0.1]; % Initial point
+Tmax = 50; % Time end
+h = 1e-2; % Step
+start_point = [4 -2 0]; % Initial point
 
 [t, x] = ode45(system, 0:h:Tmax, start_point);
 y = transpose(system(0, x'));
@@ -51,9 +51,10 @@ for noise_amp = noises
     %erro = [erro norm(y - EvalPoly(Ht1, x, sigma))];
 end
 
+figure(1)
 loglog(noises, errt, 'r', noises, erro, 'b');
 grid on;
-title(['Noise resistance (', sysname, ')']);
+title(['Homoscedastic noise resistance (', sysname, ')']);
 legend('LSM', 'Orthogonal polynomials');
-xlabel('Noise magnitude');
-ylabel('Norm error in coefficients');
+xlabel('Average noise magnitude \sigma');
+ylabel('Coefficients error \zeta');

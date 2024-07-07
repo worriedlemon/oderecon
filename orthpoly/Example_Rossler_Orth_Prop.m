@@ -2,11 +2,13 @@ close all;
 warning off;
 
 % System Simulation
+sys = @Lorenz;
+sysname = 'Lorenz';
 start_point = [4 -2 0]; % Initial point
 Tmax = 50; % Time nd
-h = 1e-3; % Step
+h = 1e-2; % Step
 
-[t, x] = ode45(@Lorenz, 0:h:Tmax, start_point);
+[t, x] = ode45(sys, 0:h:Tmax, start_point);
 
 deg = 2; % Degree of reconstructed function
 vc = size(x, 2); % Variables count
@@ -37,3 +39,7 @@ hold on; grid on;
 
 [~, x1] = ode45(@(t, x)oderecon(H, T, t, x), t, start_point);
 plot3(x1(:, 1), x1(:, 2), x1(:, 3), 'r');
+xlabel('\itx'); ylabel('\ity'); zlabel('\itz');
+title([sysname, ' dynamical system reconstruction']);
+
+legend('Initial system', 'Reconstructed system')
