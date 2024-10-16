@@ -1,13 +1,15 @@
 rng_i default;
 warning off;
 
+% System coefficients
 Hlorenz = [0 -10 10 0 0 0 0 0 0 0; 0 28 -1 0 0 0 -1 0 0 0; 0 0 0 -8/3 0 1 0 0 0 0]';
-Hrossler = [0 0 -1 -1 0 0 0 0 0 0; 0 1 0.2 0 0 0 0 0 0 0; 0.2 0 0 -5.7 0 0 1 0 0 0]';
-system = @Lorenz;
-sysname = 'Lorenz';
-Href = Hlorenz;
+Hrossler = [0 0 -1 -1 0 0 0 0 0 0; 0 1 0.3 0 0 0 0 0 0 0; 0.3 0 0 -5.7 0 0 1 0 0 0]';
 
-Tmax = 50; % Time end
+% Used system
+system = @Lorenz;
+
+Href = eval(['H', lower(func2str(system))]); % Used coefficients
+Tmax = 100; % Time end
 h = 1e-2; % Step
 start_point = [4 -2 0]; % Initial point
 
@@ -22,7 +24,9 @@ deg = 2;
 sigma = deglexord(deg, vc);
 mc = size(sigma, 1);
 
-noises = [1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 0.25, 0.5, 1, 2, 5, 10];
+noises = logspace(-5, 1, 50);
+
+% Homoscedasticity test
 errt = []; erro = [];
 for noise_amp = noises
     rx = x + noise_amp * randn(N, vc);
@@ -43,18 +47,48 @@ for noise_amp = noises
 
     B = EvalPoly(eye(mc), rx, sigma);
     Ht = (B'*B)\B'*ry;
-    %errt = [errt norm(y - EvalPoly(Ht, x, sigma))];
     errt = [errt norm(Ht - Href)];
 
     Ht1 = F' * Ho;
     erro = [erro norm(Ht1 - Href)];
-    %erro = [erro norm(y - EvalPoly(Ht1, x, sigma))];
 end
 
-figure(1)
+figure(1);
 loglog(noises, errt, 'r', noises, erro, 'b');
-grid on;
-title(['Homoscedastic noise resistance (', sysname, ')']);
-legend('LSM', 'Orthogonal polynomials');
-xlabel('Average noise magnitude \sigma');
-ylabel('Coefficients error \zeta');
+hold on; grid on;
+title(['Noise resistance (', func2str(system), ')']);
+legend('LSM (Homoscedastic)', 'Orthogonal polynomials (Homoscedastic)');
+xtickformat('$%g$'); ytickformat('$%g$'); ztickformat('$%g$');
+xlabel('Average noise magnitude $\sigma$', 'Interpreter', 'latex');
+ylabel('Coefficients error $\zeta$', 'Interpreter', 'latex');
+set(gca, 'TickLabelInterpreter', 'latex');
+
+% Heteroscedasticity test
+errt = []; erro = [];
+for noise_amp = noises
+    dmx = x - mean(x);
+    rx = x + noise_amp * randn(N, vc) .* dmx;
+    ry = [diff(rx) / h; (rx(end, :) - rx(end - 1, :)) / h];
+    
+    F = orthpoly_t(sigma, t, rx);
+    
+    Ho = zeros(mc, eqc);
+    for i = 1:eqc
+        E = EvalPoly(F', rx, sigma);
+        for j = 1:mc
+            Ho(j, i) = trapz(rx(:, i), E(:, j));
+        end
+    end
+
+    B = EvalPoly(eye(mc), rx, sigma);
+    Ht = (B'*B)\B'*ry;
+    errt = [errt norm(Ht - Href)];
+
+    Ht1 = F' * Ho;
+    erro = [erro norm(Ht1 - Href)];
+end
+
+figure(1);
+hold on;
+loglog(noises, errt, 'm--', 'DisplayName', 'LSM (Heteroscedastic)')
+loglog(noises, erro, 'g--', 'DisplayName', 'Orthogonal polynomials (Heteroscedastic)');

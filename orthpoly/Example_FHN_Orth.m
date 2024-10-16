@@ -2,14 +2,14 @@ close all;
 warning off;
 
 % System Simulation
-sys = @Rossler;
-start_point = [4 -2 0]; % Initial point
-Tmax = 100; % Time end
+sys = @FHN;
+start_point = [0.1 0.1]; % Initial point
+Tmax = 25; % Time end
 h = 1e-2; % Step
 
 [t, x] = ode45(sys, 0:h:Tmax, start_point);
 
-deg = 2; % Degree of reconstructed function
+deg = 3; % Degree of reconstructed function
 vc = size(x, 2); % Variables count
 eqc = vc; % Equations count
 sigma = deglexord(deg, vc);
@@ -33,15 +33,14 @@ H = mat2cell(coefs, mc, ones(1, eqc));
 T = mat2cell(repmat(sigma, 1, eqc), mc, repmat(vc, 1, eqc));
 
 figure(1);
-plot3(x(:, 1), x(:, 2), x(:, 3));
+plot(x(:, 1), x(:, 2));
 hold on; grid on;
 
 [~, x1] = ode45(@(t, x)oderecon(H, T, t, x), t, start_point);
-plot3(x1(:, 1), x1(:, 2), x1(:, 3), 'r');
-xtickformat('$%g$'); ytickformat('$%g$'); ztickformat('$%g$')
+plot(x1(:, 1), x1(:, 2), 'r');
+xtickformat('$%g$'); ytickformat('$%g$');
 set(gca,'TickLabelInterpreter','latex');
 xlabel('$x$','Interpreter','latex');
 ylabel('$y$','Interpreter','latex');
-zlabel('$z$','Interpreter','latex');
-title([func2str(sys), ' dynamical system reconstruction']);
+title('FitzHugh-Nagumo model reconstruction');
 legend('Initial system', 'Reconstructed system')

@@ -1,17 +1,23 @@
 rng_i default;
 warning off;
 
+% Initial coefficients and points
 Hlorenz = [0 -10 10 0 0 0 0 0 0 0; 0 28 -1 0 0 0 -1 0 0 0; 0 0 0 -8/3 0 1 0 0 0 0]';
+Plorenz = [0.67963 1.29782 7.83735];
 Hrossler = [0 0 -1 -1 0 0 0 0 0 0; 0 1 0.2 0 0 0 0 0 0 0; 0.2 0 0 -5.7 0 0 1 0 0 0]';
+Prossler = [4.57073 -3.0225 0.13198];
+
+% Used system
 system = @Rossler;
-sysname = 'Rossler';
-Href = Hrossler;
 
-Tmax = 50; % Time end
+sysname = func2str(system);
+Href = eval(['H', lower(sysname)]);
+Pref = eval(['P', lower(sysname)]);
+
+Tmax = 100; % Time end
 h = 1e-2; % Step
-start_point = [4 -2 0]; % Initial point
 
-[t, x] = ode45(system, 0:h:Tmax, start_point);
+[t, x] = ode45(system, 0:h:Tmax, Pref);
 
 [N, vc] = size(x);
 eqc = vc;
@@ -40,32 +46,37 @@ for i = 1:eqc
 end
 Ho = F' * Ho;
 
-Tmax = 100;
+Tmax = 250;
 h = 1e-2;
 t = 0:h:Tmax;
 N = length(t);
 
-[~, x] = ode45(system, t, start_point);
-xt_slave = [start_point; zeros(N - 1, vc)];
+[~, x] = ode45(system, t, Pref);
+xt_slave = [Pref; zeros(N - 1, vc)];
 xo_slave = xt_slave;
-sync_coef = 1.25 * [1 1 1];
+sync_coef = 1;
 for i = 1:N - 1
-    disp(i)
-
     % Runge-Kutta (2-nd order)
-    k1 = h / 2 * (EvalPoly(Ht, xt_slave(i, :), sigma) + sync_coef .* (x(i, :) - xt_slave(i, :)));
-    k2 = h * (EvalPoly(Ht, xt_slave(i, :) + k1, sigma) + sync_coef .* (x(i, :) - (xt_slave(i, :) + k1)));
+    syncv = sync_coef * [1 1 1];
+    k1 = h / 2 * (EvalPoly(Ht, xt_slave(i, :), sigma) + syncv .* (x(i, :) - xt_slave(i, :)));
+    k2 = h * (EvalPoly(Ht, xt_slave(i, :) + k1, sigma) + syncv .* (x(i, :) - (xt_slave(i, :) + k1)));
     xt_slave(i + 1, :) = xt_slave(i, :) + k2;
 
-    k1 = h / 2 * (EvalPoly(Ho, xo_slave(i, :), sigma) + sync_coef .* (x(i, :) - xo_slave(i, :)));
-    k2 = h * (EvalPoly(Ho, xo_slave(i, :) + k1, sigma) + sync_coef .* (x(i, :) - (xo_slave(i, :) + k1)));
+    k1 = h / 2 * (EvalPoly(Ho, xo_slave(i, :), sigma) + syncv .* (x(i, :) - xo_slave(i, :)));
+    k2 = h * (EvalPoly(Ho, xo_slave(i, :) + k1, sigma) + syncv .* (x(i, :) - (xo_slave(i, :) + k1)));
     xo_slave(i + 1, :) = xo_slave(i, :) + k2;
 end
 
 figure(1)
-semilogy(t, vecnorm(x - xt_slave, 2, 2), 'r', t, vecnorm(x - xo_slave, 2, 2), 'b');
+semilogy(t, vecnorm(x - xt_slave, 2, 2), 'Color', [1 0 0 0.2]);
+hold on;
+semilogy(t, vecnorm(x - xo_slave, 2, 2), 'Color', [0 0 1 0.2]);
+semilogy(t, (t * 0) + mean(vecnorm(x - xt_slave, 2, 2)), 'Color', [1 0 0 1], 'LineWidth', 3);
+semilogy(t, (t * 0) + mean(vecnorm(x - xo_slave, 2, 2)), 'Color', [0 0 1 1], 'LineWidth', 3);
 grid on;
 title(['Synchronization error (', sysname, ')']);
-legend('LSM', 'Orthogonal polynomials');
-xlabel('Time $t$, sec', 'Interpreter', 'latex');
+legend('', '', 'LSM (mean)', 'Orthogonal polynomials (mean)');
+xtickformat('$%g$'); ytickformat('$%g$'); ztickformat('$%g$');
+set(gca, 'TickLabelInterpreter', 'latex');
+xlabel('Time $t$, s', 'Interpreter', 'latex');
 ylabel('Synchronization error $\overline{\zeta}$', 'Interpreter', 'latex');

@@ -2,6 +2,8 @@ rng_i default;
 close all;
 warning off;
 
+addpath("research\mycalc")
+
 % Dynamic system Simulation
 start_point = [4 -2 0]; % Initial point
 h = 0.01; % Step
@@ -53,3 +55,5 @@ grid on;
 xlabel('Points count \it{N}'); ylabel('Elapsed time \it{t}, s');
 title('Speed comparison between LSM and Orth');
 legend('Orthogonal polynomials (algorithm only)', 'Orthogonal polynomials', 'LSM');
+
+rmpath("research\mycalc")

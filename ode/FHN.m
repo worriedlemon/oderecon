@@ -1,4 +1,4 @@
-function dX = FHN(t,X)
+     function dX = FHN(t,X)
 dX = X; x = X(1,:); y = X(2,:);
 
 dX(1,:) = y;

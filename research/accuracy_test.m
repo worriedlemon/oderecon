@@ -2,14 +2,14 @@ rng_i default;
 warning off;
 
 Hlorenz = [0 -10 10 0 0 0 0 0 0 0; 0 28 -1 0 0 0 -1 0 0 0; 0 0 0 -8/3 0 1 0 0 0 0]';
-Hrossler = [0 0 -1 -1 0 0 0 0 0 0; 0 1 0.2 0 0 0 0 0 0 0; 0.2 0 0 -5.7 0 0 1 0 0 0]';
-system = @Lorenz;
-sysname = 'Lorenz';
-Href = Hlorenz;
+Hrossler = [0 0 -1 -1 0 0 0 0 0 0; 0 1 0.3 0 0 0 0 0 0 0; 0.3 0 0 -5.7 0 0 1 0 0 0]';
+system = @Rossler;
+sysname = 'Rossler';
+Href = Hrossler;
 
-Tmax = 50;
+Tmax = 100;
 Tmaxs = 10:10:100; % Time end
-hs = 10.^(-4:0.5:-1);
+hs = 10.^(-4:0.06:-1);
 h = 1e-3; % Step
 start_point = [4 -2 0]; % Initial point
 
@@ -55,9 +55,11 @@ figure(1);
 loglog(hs, nrm(1, :), 'r', hs, nrm(3, :), 'b');
 grid on;
 title(['Reconstruction error (', sysname, ')']);
-%xlabel('Time end \it{T}_{max}, s');
-xlabel('Time step \it{h}, s');
-ylabel('Error \it{\zeta}');
+xtickformat('$%g$'); ytickformat('$%g$'); ztickformat('$%g$')
+set(gca,'TickLabelInterpreter','latex');
+%xlabel('Time end $T_\text{max}$, s');
+xlabel('Time step $h$, s','Interpreter','latex');
+ylabel('Error $\zeta$','Interpreter','latex');
 legend('LSM', 'Orthogonal polynomials')
 
 % figure(2);

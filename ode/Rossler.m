@@ -1,7 +1,7 @@
 function dX = Rossler(t,X)
 dX = X; 
-a = 0.2;
-b = 0.2;
+a = 0.3;
+b = 0.3;
 c = 5.7;
 
 x = X(1,:); y = X(2,:); z = X(3,:);

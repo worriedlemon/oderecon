@@ -1,13 +1,15 @@
 rng_i default;
 warning off;
 
+% System coefficients
 Hlorenz = [0 -10 10 0 0 0 0 0 0 0; 0 28 -1 0 0 0 -1 0 0 0; 0 0 0 -8/3 0 1 0 0 0 0]';
-Hrossler = [0 0 -1 -1 0 0 0 0 0 0; 0 1 0.2 0 0 0 0 0 0 0; 0.2 0 0 -5.7 0 0 1 0 0 0]';
-system = @Rossler;
-sysname = 'Rossler';
-Href = Hrossler;
+Hrossler = [0 0 -1 -1 0 0 0 0 0 0; 0 1 0.3 0 0 0 0 0 0 0; 0.3 0 0 -5.7 0 0 1 0 0 0]';
 
-Tmax = 50; % Time end
+% Used system
+system = @Lorenz;
+
+Href = eval(['H', lower(func2str(system))]); % Used coefficients
+Tmax = 100; % Time end
 h = 1e-2; % Step
 start_point = [4 -2 0]; % Initial point
 
@@ -22,11 +24,14 @@ deg = 2;
 sigma = deglexord(deg, vc);
 mc = size(sigma, 1);
 
-noises = [1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 0.25, 0.5, 1, 2, 5, 10];
+noises = logspace(-5, 1, 50);
+noise_M = pinknoise(N, vc);
+noise_M_mean = mean(abs(noise_M))
+noise_M = noise_M ./ noise_M_mean;
+
 errt = []; erro = [];
 for noise_amp = noises
-    dmx = x - mean(x);
-    rx = x + noise_amp * randn(N, vc) .* dmx;
+    rx = x + noise_amp * noise_M;
     ry = [diff(rx) / h; (rx(end, :) - rx(end - 1, :)) / h]; % first order
     %ry = diff2(rx) / h; % second order
     %ry = diff4(rx, t); % fourth order
@@ -44,17 +49,18 @@ for noise_amp = noises
 
     B = EvalPoly(eye(mc), rx, sigma);
     Ht = (B'*B)\B'*ry;
-    %errt = [errt norm(y - EvalPoly(Ht, x, sigma))];
     errt = [errt norm(Ht - Href)];
 
     Ht1 = F' * Ho;
     erro = [erro norm(Ht1 - Href)];
-    %erro = [erro norm(y - EvalPoly(Ht1, x, sigma))];
 end
 
+figure(1);
 loglog(noises, errt, 'r', noises, erro, 'b');
-grid on;
-title(['Heteroscedastic noise resistance (', sysname, ')']);
+hold on; grid on;
+title(['Noise resistance (', func2str(system), ')']);
 legend('LSM', 'Orthogonal polynomials');
-xlabel('Average noise magnitude \sigma');
-ylabel('Coefficients error $\overline{\zeta}$', 'Interpreter', 'latex');
+xtickformat('$%g$'); ytickformat('$%g$'); ztickformat('$%g$');
+xlabel('Average pink noise amplifying coefficient $K$', 'Interpreter', 'latex');
+ylabel('Coefficients error $\zeta$', 'Interpreter', 'latex');
+set(gca, 'TickLabelInterpreter', 'latex');
