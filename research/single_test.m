@@ -17,6 +17,8 @@ mc = size(sigma, 1);
 
 N = length(hs);
 
+delta = 0.01; % regularization parameter
+
 errt = zeros(1, N);
 erro = errt;
 for k = 1:N
@@ -40,7 +42,7 @@ for k = 1:N
     Ho = F' * Ho;
 
     E = EvalPoly(eye(mc), x, sigma);
-    Ht = (E'*E)\E'*y;
+    Ht = (E'*E + delta*eye(mc))\E'*y;
 
     errt(k) = norm(Ht - Href);
     erro(k) = norm(Ho - Href);

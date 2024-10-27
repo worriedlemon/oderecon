@@ -3,6 +3,10 @@ warning off;
 
 % System Simulation
 sys = @FHN;
+
+% Use delMinorTerms
+delminor = 0;
+
 start_point = [0.1 0.1]; % Initial point
 Tmax = 25; % Time end
 h = 1e-2; % Step
@@ -17,17 +21,26 @@ sigma = deglexord(deg, vc);
 F = orthpoly_t(sigma, t, x); % Getting orthogonal polynomials matrix
 mc = size(F, 1); % Monomials count
 
-E = EvalPoly(F', x, sigma);
 coefs = zeros(mc, eqc);
-for j = 1:mc
-    for i = 1:eqc
-        coefs(j, i) = trapz(x(:, i), E(:, j));
+if ~delminor
+    E = EvalPoly(F', x, sigma);
+    
+    for j = 1:mc
+        for i = 1:eqc
+            coefs(j, i) = trapz(x(:, i), E(:, j));
+        end
+    end
+else
+    % We need to know derivatives
+    y = [diff(x) / h; (x(end, :) - x(end - 1, :)) / h]; % first order
+    
+    for j = 1:vc
+        [coefs(:, j), ~] = delMinorTerms_dx(x(:, j), x, y(:, j), F, sigma, 2e-3, 0);
     end
 end
 
-
-disp("\nCoefficients:");
-coefs = F' * coefs %#ok
+disp('Orthogonal Coefficients:'); coefs %#ok
+disp('Regular Coefficients:'); coefs = F' * coefs %#ok
 
 H = mat2cell(coefs, mc, ones(1, eqc));
 T = mat2cell(repmat(sigma, 1, eqc), mc, repmat(vc, 1, eqc));
@@ -42,5 +55,5 @@ xtickformat('$%g$'); ytickformat('$%g$');
 set(gca,'TickLabelInterpreter','latex');
 xlabel('$x$','Interpreter','latex');
 ylabel('$y$','Interpreter','latex');
-title('FitzHugh-Nagumo model reconstruction');
+%title('FitzHugh-Nagumo model reconstruction');
 legend('Initial system', 'Reconstructed system')

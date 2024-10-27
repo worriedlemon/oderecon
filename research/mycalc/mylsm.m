@@ -1,6 +1,8 @@
 function x = mylsm(a, b)
     at = mytranspose(a);
     U = mymult(at, a);
+    delta = 0.01; % regularization parameter
+    U = U + delta * eye(size(U));
     V = mymult(at, b);
     x = V;
     

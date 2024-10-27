@@ -6,7 +6,7 @@ Hlorenz = [0 -10 10 0 0 0 0 0 0 0; 0 28 -1 0 0 0 -1 0 0 0; 0 0 0 -8/3 0 1 0 0 0 
 Hrossler = [0 0 -1 -1 0 0 0 0 0 0; 0 1 0.3 0 0 0 0 0 0 0; 0.3 0 0 -5.7 0 0 1 0 0 0]';
 
 % Used system
-system = @Lorenz;
+system = @Rossler
 
 Href = eval(['H', lower(func2str(system))]); % Used coefficients
 Tmax = 100; % Time end
@@ -23,6 +23,8 @@ deg = 2;
 
 sigma = deglexord(deg, vc);
 mc = size(sigma, 1);
+
+delta = 0.01; % regularization parameter
 
 noises = logspace(-5, 1, 50);
 noise_M = pinknoise(N, vc);
@@ -48,7 +50,7 @@ for noise_amp = noises
     end
 
     B = EvalPoly(eye(mc), rx, sigma);
-    Ht = (B'*B)\B'*ry;
+    Ht = (B'*B + delta*eye(mc))\B'*ry;
     errt = [errt norm(Ht - Href)];
 
     Ht1 = F' * Ho;
@@ -58,9 +60,10 @@ end
 figure(1);
 loglog(noises, errt, 'r', noises, erro, 'b');
 hold on; grid on;
-title(['Noise resistance (', func2str(system), ')']);
+%title(['Noise resistance (', func2str(system), ')']);
 legend('LSM', 'Orthogonal polynomials');
 xtickformat('$%g$'); ytickformat('$%g$'); ztickformat('$%g$');
-xlabel('Average pink noise amplifying coefficient $K$', 'Interpreter', 'latex');
+%xlabel('Average pink noise amplifying coefficient $K$', 'Interpreter', 'latex');
 ylabel('Coefficients error $\zeta$', 'Interpreter', 'latex');
 set(gca, 'TickLabelInterpreter', 'latex');
+xlim([noises(1), noises(end)]);

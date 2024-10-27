@@ -3,15 +3,18 @@ warning off;
 
 Hlorenz = [0 -10 10 0 0 0 0 0 0 0; 0 28 -1 0 0 0 -1 0 0 0; 0 0 0 -8/3 0 1 0 0 0 0]';
 Hrossler = [0 0 -1 -1 0 0 0 0 0 0; 0 1 0.3 0 0 0 0 0 0 0; 0.3 0 0 -5.7 0 0 1 0 0 0]';
-system = @Rossler;
-sysname = 'Rossler';
-Href = Hrossler;
+
+system = @Rossler
+sysname = func2str(system);
+Href = eval(['H', lower(sysname)]); % Used coefficients
 
 Tmax = 100;
 Tmaxs = 10:10:100; % Time end
 hs = 10.^(-4:0.06:-1);
 h = 1e-3; % Step
 start_point = [4 -2 0]; % Initial point
+
+delta = 0.01; % regularization parameter
 
 nrm = zeros(3, length(hs));
 for i = 1:length(hs)
@@ -28,7 +31,7 @@ for i = 1:length(hs)
     mc = size(sigma, 1);
     
     B = EvalPoly(eye(mc), x, sigma);
-    Ht = (B'*B)\B'*y;
+    Ht = (B'*B + delta*eye(mc))\B'*y;
 
     nrm(1, i) = norm(Ht - Href);
     
@@ -54,11 +57,11 @@ figure(1);
 %plot(Tmaxs, nrm(1, :), 'b--', Tmaxs, nrm(2, :), 'r--', Tmaxs, nrm(3, :), 'g');
 loglog(hs, nrm(1, :), 'r', hs, nrm(3, :), 'b');
 grid on;
-title(['Reconstruction error (', sysname, ')']);
+%title(['Reconstruction error (', sysname, ')']);
 xtickformat('$%g$'); ytickformat('$%g$'); ztickformat('$%g$')
 set(gca,'TickLabelInterpreter','latex');
 %xlabel('Time end $T_\text{max}$, s');
-xlabel('Time step $h$, s','Interpreter','latex');
+%xlabel('Time step $h$, s','Interpreter','latex');
 ylabel('Error $\zeta$','Interpreter','latex');
 legend('LSM', 'Orthogonal polynomials')
 

@@ -6,7 +6,7 @@ Hlorenz = [0 -10 10 0 0 0 0 0 0 0; 0 28 -1 0 0 0 -1 0 0 0; 0 0 0 -8/3 0 1 0 0 0 
 Hrossler = [0 0 -1 -1 0 0 0 0 0 0; 0 1 0.3 0 0 0 0 0 0 0; 0.3 0 0 -5.7 0 0 1 0 0 0]';
 
 % Used system
-system = @Lorenz;
+system = @Rossler
 
 Href = eval(['H', lower(func2str(system))]); % Used coefficients
 Tmax = 100; % Time end
@@ -23,6 +23,8 @@ deg = 2;
 
 sigma = deglexord(deg, vc);
 mc = size(sigma, 1);
+
+delta = 0.01; % regularization parameter
 
 noises = logspace(-5, 1, 50);
 
@@ -46,7 +48,7 @@ for noise_amp = noises
     end
 
     B = EvalPoly(eye(mc), rx, sigma);
-    Ht = (B'*B)\B'*ry;
+    Ht = (B'*B + delta*eye(mc))\B'*ry;
     errt = [errt norm(Ht - Href)];
 
     Ht1 = F' * Ho;
@@ -56,10 +58,10 @@ end
 figure(1);
 loglog(noises, errt, 'r', noises, erro, 'b');
 hold on; grid on;
-title(['Noise resistance (', func2str(system), ')']);
-legend('LSM (Homoscedastic)', 'Orthogonal polynomials (Homoscedastic)');
+%title(['Noise resistance (', func2str(system), ')']);
+legend('LSM (Homoscedastic)', 'OrthPoly (Homoscedastic)');
 xtickformat('$%g$'); ytickformat('$%g$'); ztickformat('$%g$');
-xlabel('Average noise magnitude $\sigma$', 'Interpreter', 'latex');
+%xlabel('Average noise magnitude $\sigma$', 'Interpreter', 'latex');
 ylabel('Coefficients error $\zeta$', 'Interpreter', 'latex');
 set(gca, 'TickLabelInterpreter', 'latex');
 
@@ -91,4 +93,5 @@ end
 figure(1);
 hold on;
 loglog(noises, errt, 'm--', 'DisplayName', 'LSM (Heteroscedastic)')
-loglog(noises, erro, 'g--', 'DisplayName', 'Orthogonal polynomials (Heteroscedastic)');
+loglog(noises, erro, 'g--', 'DisplayName', 'OrthPoly (Heteroscedastic)');
+xlim([noises(1), noises(end)])

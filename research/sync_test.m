@@ -8,7 +8,7 @@ Hrossler = [0 0 -1 -1 0 0 0 0 0 0; 0 1 0.2 0 0 0 0 0 0 0; 0.2 0 0 -5.7 0 0 1 0 0
 Prossler = [4.57073 -3.0225 0.13198];
 
 % Used system
-system = @Rossler;
+system = @Rossler
 
 sysname = func2str(system);
 Href = eval(['H', lower(sysname)]);
@@ -31,9 +31,10 @@ ry = [diff(rx) / h; (rx(end, :) - rx(end - 1, :)) / h]; % first order
 %ry = diff2(rx) / h; % second order
 %ry = diff4(rx, t); % fourth order
 
+delta = 0.01; % regularization parameter
 
 B = EvalPoly(eye(mc), rx, sigma);
-Ht = (B'*B)\B'*ry;
+Ht = (B'*B + delta*eye(mc))\B'*ry;
 
 F = orthpoly_t(sigma, t, rx);
 
@@ -74,9 +75,10 @@ semilogy(t, vecnorm(x - xo_slave, 2, 2), 'Color', [0 0 1 0.2]);
 semilogy(t, (t * 0) + mean(vecnorm(x - xt_slave, 2, 2)), 'Color', [1 0 0 1], 'LineWidth', 3);
 semilogy(t, (t * 0) + mean(vecnorm(x - xo_slave, 2, 2)), 'Color', [0 0 1 1], 'LineWidth', 3);
 grid on;
-title(['Synchronization error (', sysname, ')']);
+%title(['Synchronization error (', sysname, ')']);
 legend('', '', 'LSM (mean)', 'Orthogonal polynomials (mean)');
 xtickformat('$%g$'); ytickformat('$%g$'); ztickformat('$%g$');
 set(gca, 'TickLabelInterpreter', 'latex');
-xlabel('Time $t$, s', 'Interpreter', 'latex');
+%xlabel('Time $t$, s', 'Interpreter', 'latex');
 ylabel('Synchronization error $\overline{\zeta}$', 'Interpreter', 'latex');
+xlim([200, 250]);

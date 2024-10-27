@@ -2,7 +2,11 @@ close all;
 warning off;
 
 % System Simulation
-sys = @Rossler;
+sys = @Rossler
+
+% Use delMinorTerms
+delminor = 0;
+
 start_point = [4 -2 0]; % Initial point
 Tmax = 100; % Time end
 h = 1e-2; % Step
@@ -14,20 +18,29 @@ vc = size(x, 2); % Variables count
 eqc = vc; % Equations count
 sigma = deglexord(deg, vc);
 
-F = orthpoly_t(sigma, t, x); % Getting orthogonal polynomials matrix
+F = orthpoly_t(sigma, t, x) %#ok Getting orthogonal polynomials matrix
 mc = size(F, 1); % Monomials count
 
-E = EvalPoly(F', x, sigma);
 coefs = zeros(mc, eqc);
-for j = 1:mc
-    for i = 1:eqc
-        coefs(j, i) = trapz(x(:, i), E(:, j));
+
+if ~delminor
+    E = EvalPoly(F', x, sigma);
+    for j = 1:mc
+        for i = 1:eqc
+            coefs(j, i) = trapz(x(:, i), E(:, j));
+        end
+    end
+else
+    % We need to know derivatives
+    y = [diff(x) / h; (x(end, :) - x(end - 1, :)) / h]; % first order
+    
+    for j = 1:vc
+        [coefs(:, j), ~] = delMinorTerms_dx(x(:, j), x, y(:, j), F, sigma, 1e-1, 0);
     end
 end
 
-
-disp("\nCoefficients:");
-coefs = F' * coefs %#ok
+disp('Orthogonal Coefficients:'); coefs %#ok
+disp('Regular Coefficients:'); coefs = F' * coefs %#ok
 
 H = mat2cell(coefs, mc, ones(1, eqc));
 T = mat2cell(repmat(sigma, 1, eqc), mc, repmat(vc, 1, eqc));
@@ -43,5 +56,5 @@ set(gca,'TickLabelInterpreter','latex');
 xlabel('$x$','Interpreter','latex');
 ylabel('$y$','Interpreter','latex');
 zlabel('$z$','Interpreter','latex');
-title([func2str(sys), ' dynamical system reconstruction']);
+%title([func2str(sys), ' dynamical system reconstruction']);
 legend('Initial system', 'Reconstructed system')
