@@ -16,7 +16,7 @@ where $\mathbf{x} = (x,y,z, \dots) ^\top$ is a phase vector. Any combination of 
 
 For example, we have a recorded three-dimensional trajectory $\mathbf{x} = (x,y,z)^\top$ as in the left pane below, shown blue. 
 
-![Fig1](https://github.com/aikarimov/ODERECON/blob/main/scheme.drawio.png)
+![Fig1](https://github.com/worriedlemon/oderecon/blob/main/GITHUB_GRAPHICS/scheme.drawio.png)
 
 We randomly select some sample points, shown green-yellow in the middle pane, and reconstruct sparse, readable equations of the system:
 
@@ -92,7 +92,7 @@ for i = 1:N %take random points from trajectory
     Y(i,:) = y(id,:);
 end
 ```
-After that, we can obtain the Lorenz equations from these $N$ toy data points using ODERECON. First, we use a function `PolyRegression` to obtain two cell arrays $T$ and $H$, containing all necessary information about the reconstructed system (see the section [Algorithm](https://github.com/aikarimov/ODERECON/tree/main#algorithm) for details):
+After that, we can obtain the Lorenz equations from these $N$ toy data points using ODERECON. First, we use a function `PolyRegression` to obtain two cell arrays $T$ and $H$, containing all necessary information about the reconstructed system (see the section [Algorithm](https://github.com/worriedlemon/ODERECON/tree/main#algorithm) for details):
 
 ```matlab
 dmax = 2; % maximum power of the monomial
@@ -119,7 +119,7 @@ First, introduce some formalism. Representation of an arbitrary $M$-dimensional 
 
 On the first stage of the algorithm, for each line, full matrices $T_i$ are created, containing all possible variants of powers up to $d_{max}$. Example of full degree-lexicographic ordering $\sigma$ is shown in the left of the figure, and example of the Lorenz system represented in such a way is given in the right of the figure. 
 
-![Fig2](https://github.com/aikarimov/ODERECON/blob/main/handt.drawio.png)
+![Fig2](https://github.com/worriedlemon/oderecon/blob/main/GITHUB_GRAPHICS/handt.drawio.png)
 
 Ordering $\sigma$ is generated with the function `deglexord(dmin,dmax,M)`. Sparse reconstruction of the equations needs eliminating all excessive terms in $T_i$ and setting correct values to entries of $H_i$. 
 
