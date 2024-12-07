@@ -35,14 +35,14 @@ E = eye(deg + 1);
 orthogonality_test(F, deg, 1, c01(1), c01(2), 1e-12)
 
 % getting values
-R = EvalPolyOrth(E, rx', sigma, F, sigma);
+R = EvalPoly(F'*E, rx', sigma, F, sigma);
 
 coefs = (R'*R)\R'*ry';
 disp('Coefficients are'); disp(coefs);
 eq = num2str(coefs');
 
 % finding values of a reconstructed function
-y1 = (EvalPolyOrth(E, x', sigma, F, sigma) * coefs)';
+y1 = (EvalPoly(F'*E, x', sigma, F, sigma) * coefs)';
 
 disp('Reconstructed function error:');
 err = norm(y - y1)

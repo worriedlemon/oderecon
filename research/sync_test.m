@@ -81,4 +81,4 @@ xtickformat('$%g$'); ytickformat('$%g$'); ztickformat('$%g$');
 set(gca, 'TickLabelInterpreter', 'latex');
 %xlabel('Time $t$, s', 'Interpreter', 'latex');
 ylabel('Synchronization error $\overline{\zeta}$', 'Interpreter', 'latex');
-xlim([200, 250]);
+xlim([t(end - 1000), t(end)]);

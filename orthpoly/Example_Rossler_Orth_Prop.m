@@ -5,7 +5,7 @@ warning off;
 sys = @Rossler
 
 % Use delMinorTerms
-delminor = 0;
+delminor = 1;
 
 start_point = [4 -2 0]; % Initial point
 Tmax = 100; % Time end
@@ -22,6 +22,7 @@ F = orthpoly_t(sigma, t, x) %#ok Getting orthogonal polynomials matrix
 mc = size(F, 1); % Monomials count
 
 coefs = zeros(mc, eqc);
+coefs_reg = zeros(mc, eqc);
 
 if ~delminor
     E = EvalPoly(F', x, sigma);
@@ -30,23 +31,31 @@ if ~delminor
             coefs(j, i) = trapz(x(:, i), E(:, j));
         end
     end
+    coefs_reg =  F' * coefs; %matrix F is one for all polynomials
 else
     % We need to know derivatives
-    y = [diff(x) / h; (x(end, :) - x(end - 1, :)) / h]; % first order
+    y = diff4(x,t);
     
     for j = 1:vc
-        [coefs(:, j), ~] = delMinorTerms_dx(x(:, j), x, y(:, j), F, sigma, 1e-1, 0);
+        [coefs(:, j), ~ ,Ftmp, h_reg] = delMinorTerms_dy(t, x(:, j), x, y(:, j), F, sigma, 2e-3, 0);
+        coefs_reg(:, j) =  h_reg; %matrix Ftmp is different for all polynomials
     end
 end
 
-disp('Orthogonal Coefficients:'); coefs %#ok
-disp('Regular Coefficients:'); coefs = F' * coefs %#ok
+disp('Orthogonal Coefficients:'); coefs_orth = coefs %#ok
+disp('Regular Coefficients:'); coefs = coefs_reg %#ok
 
 H = mat2cell(coefs, mc, ones(1, eqc));
 T = mat2cell(repmat(sigma, 1, eqc), mc, repmat(vc, 1, eqc));
 
+% display equations in orthogonal polynomials
+H_orth = mat2cell(coefs_orth, mc, ones(1, eqc));
+incf = 1;
+prettyOrth(H_orth,T,F,sigma,incf);
+
 figure(1);
 plot3(x(:, 1), x(:, 2), x(:, 3));
+
 hold on; grid on;
 
 [~, x1] = ode45(@(t, x)oderecon(H, T, t, x), t, start_point);
