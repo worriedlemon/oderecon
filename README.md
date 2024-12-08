@@ -115,6 +115,8 @@ Then, we can simulate the results using a function `oderecon`:
 ```
 ## Algorithm
 
+### LSM
+
 First, introduce some formalism. Representation of an arbitrary $M$-dimensional function $\mathbf{f}(\mathbf{x})$ is contained in two cell arrays $H$ and $T$. Entries of $H$ are $L_i \times 1$ matrices (column vectors) of coefficients by monomials in $i$-th entry of $\mathbf{f}(\mathbf{x})$, where $L_i$ is a number of terms. Entries of $T$ are $L_i \times M$ matrices containing powers of variables in each monomial, ordered degree-lexicographically.
 
 On the first stage of the algorithm, for each line, full matrices $T_i$ are created, containing all possible variants of powers up to $d_{max}$. Example of full degree-lexicographic ordering $\sigma$ is shown in the left of the figure, and example of the Lorenz system represented in such a way is given in the right of the figure. 
@@ -167,6 +169,14 @@ The function `delMinorTerms(Y,V,O,eta)` estimates coefficients by each monomial 
 Optionally, iteratively reweighted least squares (IRLS) method can be used instead of an ordinary LSM, or the LASSO regression, which in some cases gives more sparse solution.
 
 The described algorithm is implemented in the function `PolyRegression`. 
+
+### Orthogonal Polynomials
+
+For reconstructing ODE systems using orthogonal polynomials we introduce some new MATLAB functions and matrix forms.
+
+Description of all used matrices and functions in a simple form is represented in the following scheme:
+
+![SoftwareDescription](https://github.com/worriedlemon/oderecon/blob/main/GITHUB_GRAPHICS/SoftwareDescription.drawio.png)
 
 # Examples
 
