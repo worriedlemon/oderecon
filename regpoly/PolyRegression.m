@@ -101,6 +101,7 @@ end
 H = cell(1,M);
 Tau = cell(1,M);
 
+opt = {'x'};
 err = 0; fsum = 0;
 V = W;
 %reconstruct each equation
@@ -124,7 +125,7 @@ for i = 1:M
 
     tau = O;
     if deleteminor
-        [hi,tau] = delMinorTerms(Y,W(:,i),O,eta,hi,1,0,useirls); %get equation and basis
+        [hi,tau] = delMinorTerms(Y,W(:,i),O,eta,opt,hi,1,0,useirls); %get equation and basis
     end
     V(:,i) = EvalPoly(hi,Y,tau);
     H{1,i} = hi;

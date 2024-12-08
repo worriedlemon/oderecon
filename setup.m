@@ -23,7 +23,9 @@ function setup(varargin)
         dirl = dir;
         paths = {''};
         for i = 1:length(dir)
-            if isfolder(dirl(i).name) && dirl(i).name(1) ~= '.'
+            ignore = length(dirl(i).name) >= 4 && strcmp(dirl(i).name(1:4), 'IGN_');
+            github = length(dirl(i).name) >= 7 && strcmp(dirl(i).name(1:7), 'GITHUB_');
+            if isfolder(dirl(i).name) && dirl(i).name(1) ~= '.' && ~ignore && ~github
                 paths = {paths{1:length(paths)}, dirl(i).name};
             end
         end
