@@ -35,10 +35,9 @@ if ~delminor
 else
     % We need to know derivatives
     y = diff4(x,t);
-    
+    tol = 2e-3;
     for j = 1:vc
-        [coefs(:, j), ~ ,Ftmp, h_reg] = delMinorTerms_dy(t, x(:, j), x, y(:, j), F, sigma, 2e-3, 0);
-        coefs_reg(:, j) =  h_reg; %matrix Ftmp is different for all polynomials
+        [coefs(:, j), ~, ~, coefs_reg(:, j)] = delMinorTerms_dy(t, x(:, j), x, y(:, j), F, sigma, tol, 0);
     end
 end
 

@@ -1,5 +1,11 @@
-## Examples
-A number of examples with use cases is provided
+# Examples
+
+A number of examples with use cases is provided.
+
+## LSM examples
+
+In this subsection all example code use **Least-Squares Method (LSM)** for reconstruction.
+
 ### Example_FHN
 This example illustrates reconstructing FitzHugh-Nagumo system from 20 random data points. Running code as is, we obtain the following problem solution:
 ```
@@ -32,6 +38,10 @@ f1 =  x2
 f2 = - x1 - 0.3*x2
 ```
 
+Actual phase portrait looks like
+
+![FHNPhasePortrait](https://github.com/worriedlemon/oderecon/blob/main/GITHUB_GRAPHICS/FHN.png)
+
 ### Example_Lorenz
 
 Reconstructing the classical Lorenz attractor with a workflow shown earlier. The result of the code is
@@ -40,6 +50,10 @@ f1 = -10*x1 + 10*x2
 f2 = 28*x1 - x2 - x1*x3
 f3 = -2.6667*x3 + x1*x2
 ```
+
+Actual phase portrait looks like
+
+![LorenzPhasePortrait](https://github.com/worriedlemon/oderecon/blob/main/GITHUB_GRAPHICS/Lorenz.png)
 
 ### Example_Lorenz_1var
 
@@ -93,3 +107,68 @@ results in accurate equations:
 f1 = -0.0001*x2
 f2 =  x1
 ```
+
+## Orthogonal polynomials
+
+In this subsection all example code (files end with `_Orth` suffix) use **Orthogonal polynomials properties** for reconstruction.
+
+### Example_1dim_Orth and Example_2dim_Orth
+
+These examples are simple tests of the proposed method. They contain algortihm steps for reconstructing a simple algebraic equation
+
+$$f(x) = 1.7x^3 - x^2 - 0.6x + 4$$
+
+and a Himmelblau function
+
+$$f(x,y) = (x^2 + y^2 - 11)^2 + (x + y^2 - 7)^2$$
+
+respectively (`1dim` and `2dim`).
+
+### Example_FHN_Orth
+
+This example illustrates reconstructing FitzHugh-Nagumo system (see [Example_FHN](https://github.com/worriedlemon/oderecon/blob/main/examples/EXAMPLES.md#example_fhn)) from time-series using `Orthogonal polynomials`.
+
+Firstly, the variable `delminor` indicates whether *delMinorTerms* algorithm should be applied to data.
+
+```matlab
+delminor = 1;     % delMinorTerms is being used
+```
+
+Then, the second important line is 
+
+```matlab
+F = orthpoly_t(sigma, t, x);     % Getting orthogonal polynomials matrix
+```
+
+Function `orthpoly_t` creates an orthogonal set of monomials $\theta_i(\mathbf{x})$ over time series `t`, where every single monomial is actually a polynomial of regular monomials with certain coefficients. Matrix `F` represents a linear map from regular polynomials $\mathbb{O}$ to orthogonal polynomials $\Theta$ and has a size of `mc`$\times$`mc` (or $\mathbb{|O|} \times \mathbb{|O|}$). `mc` is equal to `sizeof(sigma, 1)`. Matrix `F` is described in the [Algorithm](https://github.com/worriedlemon/ODERECON/tree/main#algorithm) section of file README.md.
+
+Using matrix `F` we can simply obtain coefficients of each monomial by using Fourier series:
+
+```matlab
+E = EvalPoly(F', x, sigma);
+for j = 1:mc
+    for i = 1:eqc
+        coefs(j, i) = trapz(x(:, i), E(:, j));
+    end
+end
+```
+
+A process is a little bit different for `delminor = 1` - there we use the following code
+
+```matlab
+y = diff4(x,t);     % derivatives
+tol = 1e-3;         % tolerance
+for j = 1:vc
+    [coefs(:, j), ~, ~, coefs_reg(:, j)] = delMinorTerms_dy(t,x(:, j), x, y(:, j), F, sigma, tol, 0);
+end
+```
+
+With the help of the matrix `F` we can also obtain regular polynomials' coefficients by simply multiplying the matrix transposed on the vector of orthogonal polynomials.
+
+```matlab
+coefs_reg =  F' * coefs;
+```
+
+### Example_Rossler_Orth
+
+The process is similar to FitzHugh-Nagumo reconstruction, but the data series comes from the Rossler attractor.

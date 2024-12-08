@@ -18,13 +18,12 @@ vc = size(x, 2); % Variables count
 eqc = vc; % Equations count
 sigma = deglexord(deg, vc);
 
-F = orthpoly_t(sigma, t, x); % Getting orthogonal polynomials matrix
+F = orthpoly_t(sigma, t, x) %#ok Getting orthogonal polynomials matrix
 mc = size(F, 1); % Monomials count
 
 coefs = zeros(mc, eqc);
 coefs_reg = zeros(mc, eqc);
 
-tol = 1e-3;
 if ~delminor
     E = EvalPoly(F', x, sigma);
     for j = 1:mc
@@ -37,12 +36,11 @@ else
     % We need to know derivatives
     y = diff4(x,t);
     
+    tol = 1e-3; % tolerance
     for j = 1:vc
-        [coefs(:, j), ~, ~, h_reg] = delMinorTerms_dy(t,x(:, j), x, y(:, j), F, sigma, tol, 0);
-        coefs_reg(:, j) =  h_reg;
+        [coefs(:, j), ~, ~, coefs_reg(:, j)] = delMinorTerms_dy(t,x(:, j), x, y(:, j), F, sigma, tol, 0);
     end
 end
-
 
 
 disp('Orthogonal Coefficients:'); coefs_orth = coefs %#ok
@@ -52,7 +50,7 @@ T = mat2cell(repmat(sigma, 1, eqc), mc, repmat(vc, 1, eqc));
 H = mat2cell(coefs, mc, ones(1, eqc));
 
 
-% display equations in orthogonal polynomials
+% Display equations in orthogonal polynomials
 H_orth = mat2cell(coefs_orth, mc, ones(1, eqc));
 incf = 1;
 prettyOrth(H_orth,T,F,sigma,incf);
