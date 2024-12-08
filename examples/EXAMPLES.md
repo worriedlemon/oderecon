@@ -29,7 +29,12 @@ The result will lose its accuracy showing high sensitivity of the algorithm to n
 f1 = 0.99996*x2
 f2 = -0.99811*x1 + 3.9906*x2 - 0.99748*x2^3
 ```
+Actual phase portrait looks like
+
+![FHNPhasePortrait](https://github.com/worriedlemon/oderecon/blob/main/GITHUB_GRAPHICS/FHN.png)
+
 Adding strict accuracy options for the ode solver and replacing the `ode45` solver to the more accurate `ode78` or `ode113` improves this result, please, check it out.
+
 ### Example_Linear2
 
 This code illustrates reconstruction of a stable 2-dimensional linear system with exponential decay. Derivatives are found analytically. The output of the code is
@@ -37,11 +42,6 @@ This code illustrates reconstruction of a stable 2-dimensional linear system wit
 f1 =  x2
 f2 = - x1 - 0.3*x2
 ```
-
-Actual phase portrait looks like
-
-![FHNPhasePortrait](https://github.com/worriedlemon/oderecon/blob/main/GITHUB_GRAPHICS/FHN.png)
-
 ### Example_Lorenz
 
 Reconstructing the classical Lorenz attractor with a workflow shown earlier. The result of the code is
