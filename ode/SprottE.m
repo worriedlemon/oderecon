@@ -1,4 +1,4 @@
-function dX = SprotteE(t,X)
+function dX = SprottE(t,X)
   %initial can be [0.5 0.2 1]
   dX = X; 
   a = 1.01;

@@ -67,10 +67,10 @@ end
 
 if (phase_on)
     figure(1);
-    plot3(x(:, 1), x(:, 2), x(:, 3), 'b', 'DisplayName', 'Smoothed original data');
+    plot3(x(:, 1), x(:, 2), x(:, 3), 'Color', [0 0 1 0.5], 'DisplayName', 'Smoothed original data');
     hold on; grid on;
-    plot3(x_orig(:, 1), x_orig(:, 2), x_orig(:, 3), 'g', 'DisplayName', 'Simulated data');
-    plot3(x1(:, 1), x1(:, 2), x1(:, 3), 'r', 'DisplayName', 'Orthogonal Polynomials reconstruction');
+    %plot3(x_orig(:, 1), x_orig(:, 2), x_orig(:, 3), 'g', 'DisplayName', 'Simulated data');
+    plot3(x1(:, 1), x1(:, 2), x1(:, 3), 'Color', [1 0 0 0.5], 'DisplayName', 'Orthogonal Polynomials reconstruction');
     if (lsm_on)
         plot3(x2(:, 1), x2(:, 2), x2(:, 3), 'g', 'DisplayName', 'LSM');
     end

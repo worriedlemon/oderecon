@@ -47,26 +47,32 @@ for i = 1:eqc
 end
 Ho = F' * Ho;
 
+Ho_c = mat2cell(Ho, mc, ones(1, eqc));
+Ht_c = mat2cell(Ht, mc, ones(1, eqc));
+T = mat2cell(repmat(sigma, 1, eqc), mc, repmat(vc, 1, eqc));
+
 Tmax = 250;
 h = 1e-2;
 t = 0:h:Tmax;
 N = length(t);
 
 [~, x] = ode45(system, t, Pref);
-xt_slave = [Pref; zeros(N - 1, vc)];
-xo_slave = xt_slave;
-sync_coef = 1;
-for i = 1:N - 1
-    % Runge-Kutta (2-nd order)
-    syncv = sync_coef * [1 1 1];
-    k1 = h / 2 * (EvalPoly(Ht, xt_slave(i, :), sigma) + syncv .* (x(i, :) - xt_slave(i, :)));
-    k2 = h * (EvalPoly(Ht, xt_slave(i, :) + k1, sigma) + syncv .* (x(i, :) - (xt_slave(i, :) + k1)));
-    xt_slave(i + 1, :) = xt_slave(i, :) + k2;
-
-    k1 = h / 2 * (EvalPoly(Ho, xo_slave(i, :), sigma) + syncv .* (x(i, :) - xo_slave(i, :)));
-    k2 = h * (EvalPoly(Ho, xo_slave(i, :) + k1, sigma) + syncv .* (x(i, :) - (xo_slave(i, :) + k1)));
-    xo_slave(i + 1, :) = xo_slave(i, :) + k2;
-end
+% xt_slave = [Pref; zeros(N - 1, vc)];
+% xo_slave = xt_slave;
+% sync_coef = 1;
+% for i = 1:N - 1
+%     % Runge-Kutta (2-nd order)
+%     syncv = sync_coef * [1 1 1];
+%     k1 = h / 2 * (EvalPoly(Ht, xt_slave(i, :), sigma) + syncv .* (x(i, :) - xt_slave(i, :)));
+%     k2 = h * (EvalPoly(Ht, xt_slave(i, :) + k1, sigma) + syncv .* (x(i, :) - (xt_slave(i, :) + k1)));
+%     xt_slave(i + 1, :) = xt_slave(i, :) + k2;
+% 
+%     k1 = h / 2 * (EvalPoly(Ho, xo_slave(i, :), sigma) + syncv .* (x(i, :) - xo_slave(i, :)));
+%     k2 = h * (EvalPoly(Ho, xo_slave(i, :) + k1, sigma) + syncv .* (x(i, :) - (xo_slave(i, :) + k1)));
+%     xo_slave(i + 1, :) = xo_slave(i, :) + k2;
+% end
+xo_slave = RK4SyncFOH(x, Ho_c, T, t);
+xt_slave = RK4SyncFOH(x, Ht_c, T, t);
 
 figure(1)
 semilogy(t, vecnorm(x - xt_slave, 2, 2), 'Color', [1 0 0 0.2]);

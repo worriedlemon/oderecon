@@ -121,11 +121,11 @@ while 1/N*norm(V - EvalPoly(htmp, X, Ttmp, opt)) <= eta && L > 1
     if irls
         htmp = IRLS(E,V,X,Ttmp,eta,alp);
     else
-        %htmp = (E'*E + eta)\(E'*V);
-        [Q,R] = qr(E);
-        R1 = R(1:L,1:L);
-        Q1 = Q(:,1:L);
-        htmp = R1\(Q1'*V);
+        htmp = (E'*E + eta)\(E'*V);
+        % [Q,R] = qr(E);
+        % R1 = R(1:L,1:L);
+        % Q1 = Q(:,1:L);
+        % htmp = R1\(Q1'*V);
 
 
         if alp ~= 0

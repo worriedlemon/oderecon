@@ -5,7 +5,7 @@ if ~exist('deleteminor', 'var')
 end
 
 [N, ~] = size(x_t);
-[L, M] = size(sigma);
+[L, ~] = size(sigma);
 
 h = zeros(L, 1);
 for j = 1:L
@@ -14,7 +14,6 @@ end
 
 T = sigma;
 Ftmp = F;
-F0 = F;
 htmp = h;
 Ttmp = T;
 h_reg = F'*h;
@@ -51,21 +50,25 @@ while 1/N*norm(ref_y - EvalPoly(Ftmp'*htmp,x_t,Ttmp)) <= eta && L > 1
         
         if mink > 1 && mink < L
             Ttmp = T([1:mink - 1,mink + 1:end],:);
+            Ftmp = Ftmp([1:mink - 1,mink + 1:end],[1:mink - 1,mink + 1:end]);
             reindex = reindex([1:mink - 1,mink + 1:end]);
         end
         if mink == L
             Ttmp = T(1:mink - 1,:);
+            Ftmp = Ftmp(1:mink - 1, 1:mink - 1);
             reindex = reindex(1:mink - 1);
         end
         if mink == 1
             Ttmp = T(mink + 1:end,:);
+            Ftmp = Ftmp(mink + 1:end, mink + 1:end);
             reindex = reindex(mink + 1:end);
         end
         L = L - 1;
        
     end
     
-    Ftmp = orthpoly_t(Ttmp, ts, x_t); % Getting orthogonal polynomials matrix
+    %Ftmp = orthpoly_t(Ttmp, ts, x_t); % Getting orthogonal polynomials matrix
+    [Ftmp,~] = orthpoly_F(Ttmp, ts, x_t, Ftmp, mink); % Getting orthogonal polynomials matrix
     htmp = zeros(L,1);
     for j = 1:L
         htmp(j) = trapz(dx, EvalPoly(Ftmp(j, :)', x_t, Ttmp));
