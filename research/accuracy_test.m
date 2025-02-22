@@ -4,24 +4,27 @@ warning off;
 Hlorenz = [0 -10 10 0 0 0 0 0 0 0; 0 28 -1 0 0 0 -1 0 0 0; 0 0 0 -8/3 0 1 0 0 0 0]';
 Hrossler = [0 0 -1 -1 0 0 0 0 0 0; 0 1 0.3 0 0 0 0 0 0 0; 0.3 0 0 -5.7 0 0 1 0 0 0]';
 
-system = @Rossler
+%system = @Rossler
+system = @Lorenz
+
 sysname = func2str(system);
 Href = eval(['H', lower(sysname)]); % Used coefficients
 
-Tmax = 100;
+Tmax = 10;
 Tmaxs = 10:10:100; % Time end
-hs = 10.^(-4:0.06:-1);
+hs = 10.^(-3:0.01:-1);
 h = 1e-3; % Step
 start_point = [4 -2 0]; % Initial point
 
-delta = 0.01; % regularization parameter
+delta = 1e-5; % regularization parameter
 
 nrm = zeros(3, length(hs));
 for i = 1:length(hs)
     disp(i)
-    [t, x] = ode45(system, 0:hs(i):Tmax, start_point);
+    [t, x] = ode78(system, 0:hs(i):Tmax, start_point);
     y = [diff(x); (x(end, :) - x(end - 1, :))] / h; % first order
-    
+    %y = diff4(x, t); % fourth order
+
     [N, vc] = size(x);
     
     eqc = size(y, 2);
@@ -41,8 +44,10 @@ for i = 1:length(hs)
     Ho_x = Ho_t;
     for k = 1:eqc
         for j = 1:mc
-            % Ho_t(j, k) = trapz(t, EvalPoly(F(j, :)', x, sigma) .* y(:, k));
-            Ho_x(j, k) = trapz(x(:, k), EvalPoly(F(j, :)', x, sigma));
+            %Ho_x(j, k) = trapz(t, EvalPoly(F(j, :)', x, sigma) .* y(:, k));
+            %Ho_x(j, k) = trapz(x(:, k), EvalPoly(F(j, :)', x, sigma));
+            %Ho_x(j, k) = integrate_simpvar(x(:, k), EvalPoly(F(j, :)', x, sigma));
+            Ho_x(j, k) = integrate_simpvar(t, EvalPoly(F(j, :)', x, sigma) .* y(:, k));
         end
     end
 
@@ -64,6 +69,9 @@ set(gca,'TickLabelInterpreter','latex');
 %xlabel('Time step $h$, s','Interpreter','latex');
 ylabel('Error $\zeta$','Interpreter','latex');
 legend('LSM', 'Orthogonal polynomials')
+
+hold on
+
 
 % figure(2);
 % %plot(Tmaxs, nrm(1, :), 'b--', Tmaxs, nrm(2, :), 'r--');
