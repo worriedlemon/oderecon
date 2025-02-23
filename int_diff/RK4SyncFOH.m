@@ -1,4 +1,4 @@
-function Ys = RK4SyncFOH(Y,H,T,Ts)
+function Ys = RK4SyncFOH(Y,H,T,Ts,k_sync)
 %Solve synchronized Rossler system by RK4 method, linear interpolation
 %between points of signal in times 1/2
 %input:
@@ -8,8 +8,9 @@ function Ys = RK4SyncFOH(Y,H,T,Ts)
 %output:
 % Ys - solution of ODE
 
-
-k_sync = 1;
+if ~exist('k_sync', 'var')
+    k_sync = 1;
+end
 
 [N,~] = size(Y);
 

@@ -5,9 +5,9 @@ warning off;
 sysname = 'SprottB';
 sys_f = 'P7_1.txt';
 
-lsm_on = 0;
+lsm_on = 1;
 phase_on = 1;
-sync_on = 0;
+sync_on = 1;
 
 disp(['Reconstructing ', sysname, ' system, Variant ', sys_f]);
 x_r = readmatrix(['research/IGN_', sysname, '/', sys_f]);
@@ -69,10 +69,11 @@ if (phase_on)
     figure(1);
     plot3(x(:, 1), x(:, 2), x(:, 3), 'b', 'DisplayName', 'Smoothed original data');
     hold on; grid on;
-    plot3(x_orig(:, 1), x_orig(:, 2), x_orig(:, 3), 'g', 'DisplayName', 'Simulated data');
-    plot3(x1(:, 1), x1(:, 2), x1(:, 3), 'r', 'DisplayName', 'Orthogonal Polynomials reconstruction');
+    %plot3(x_orig(:, 1), x_orig(:, 2), x_orig(:, 3), 'g', 'DisplayName', 'Simulated data');
+    %plot3(x1(:, 1), x1(:, 2), x1(:, 3), 'r', 'DisplayName', 'Orthogonal Polynomials reconstruction');
     if (lsm_on)
-        plot3(x2(:, 1), x2(:, 2), x2(:, 3), 'g', 'DisplayName', 'LSM');
+        %plot3(x2(:, 1), x2(:, 2), x2(:, 3), 'g', 'DisplayName', 'LSM');
+        plot3(x2(:, 1), x2(:, 2), x2(:, 3), 'r', 'DisplayName', 'LSM');
     end
     xtickformat('$%g$'); ytickformat('$%g$'); ztickformat('$%g$')
     set(gca,'TickLabelInterpreter','latex');
@@ -83,8 +84,8 @@ if (phase_on)
 end
 
 if (sync_on)
-    N = length(t);
-    xo_slave = RK4SyncFOH(x, Ho_c, T, t);
+    sync_coef = 1e5;
+    xo_slave = RK4SyncFOH(x, Ho_c, T, t, sync_coef);
     
     figure(2);
     semilogy(t, vecnorm(x - xo_slave, 2, 2), 'Color', [0 0 1 0.2]);
@@ -92,7 +93,7 @@ if (sync_on)
     semilogy(t, (t * 0) + mean(vecnorm(x - xo_slave, 2, 2)), 'Color', [0 0 1 1], 'LineWidth', 3);
     legend('', 'Orthpoly (Mean)');
     if (lsm_on)
-        xt_slave = RK4SyncFOH(x, Ht_c, T, t);
+        xt_slave = RK4SyncFOH(x, Ht_c, T, t, sync_coef);
         semilogy(t, vecnorm(x - xt_slave, 2, 2), 'Color', [1 0 0 0.2]);
         semilogy(t, (t * 0) + mean(vecnorm(x - xt_slave, 2, 2)), 'Color', [1 0 0 1], 'LineWidth', 3);
         legend('', 'Orthpoly (Mean)', '', 'LSM (Mean)');

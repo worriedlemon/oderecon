@@ -14,7 +14,7 @@ sysname = func2str(system);
 Href = eval(['H', lower(sysname)]);
 Pref = eval(['P', lower(sysname)]);
 
-Tmax = 100; % Time end
+Tmax = 250; % Time end
 h = 1e-2; % Step
 
 [t, x] = ode45(system, 0:h:Tmax, Pref);
@@ -51,15 +51,14 @@ Ho_c = mat2cell(Ho, mc, ones(1, eqc));
 Ht_c = mat2cell(Ht, mc, ones(1, eqc));
 T = mat2cell(repmat(sigma, 1, eqc), mc, repmat(vc, 1, eqc));
 
-Tmax = 250;
-h = 1e-2;
 t = 0:h:Tmax;
-N = length(t);
 
 [~, x] = ode45(system, t, Pref);
+sync_coef = 1.5;
+
 % xt_slave = [Pref; zeros(N - 1, vc)];
 % xo_slave = xt_slave;
-% sync_coef = 1;
+% N = length(t);
 % for i = 1:N - 1
 %     % Runge-Kutta (2-nd order)
 %     syncv = sync_coef * [1 1 1];
@@ -71,15 +70,16 @@ N = length(t);
 %     k2 = h * (EvalPoly(Ho, xo_slave(i, :) + k1, sigma) + syncv .* (x(i, :) - (xo_slave(i, :) + k1)));
 %     xo_slave(i + 1, :) = xo_slave(i, :) + k2;
 % end
-xo_slave = RK4SyncFOH(x, Ho_c, T, t);
-xt_slave = RK4SyncFOH(x, Ht_c, T, t);
+
+xo_slave = RK4SyncFOH(x, Ho_c, T, t, sync_coef);
+xt_slave = RK4SyncFOH(x, Ht_c, T, t, sync_coef);
 
 figure(1)
-semilogy(t, vecnorm(x - xt_slave, 2, 2), 'Color', [1 0 0 0.2]);
+semilogy(t, vecnorm(x - xt_slave, 2, 2), 'Color', [1 0 0 0.2], 'LineWidth', 0.75);
 hold on;
-semilogy(t, vecnorm(x - xo_slave, 2, 2), 'Color', [0 0 1 0.2]);
-semilogy(t, (t * 0) + mean(vecnorm(x - xt_slave, 2, 2)), 'Color', [1 0 0 1], 'LineWidth', 3);
-semilogy(t, (t * 0) + mean(vecnorm(x - xo_slave, 2, 2)), 'Color', [0 0 1 1], 'LineWidth', 3);
+semilogy(t, vecnorm(x - xo_slave, 2, 2), 'Color', [0 0 1 0.2], 'LineWidth', 0.75);
+semilogy(t, (t * 0) + mean(vecnorm(x - xt_slave, 2, 2)), 'Color', [1 0 0 1], 'LineWidth', 1);
+semilogy(t, (t * 0) + mean(vecnorm(x - xo_slave, 2, 2)), 'Color', [0 0 1 1], 'LineWidth', 1);
 grid on;
 %title(['Synchronization error (', sysname, ')']);
 legend('', '', 'LSM (mean)', 'Orthogonal polynomials (mean)');
@@ -87,4 +87,4 @@ xtickformat('$%g$'); ytickformat('$%g$'); ztickformat('$%g$');
 set(gca, 'TickLabelInterpreter', 'latex');
 %xlabel('Time $t$, s', 'Interpreter', 'latex');
 ylabel('Synchronization error $\overline{\zeta}$', 'Interpreter', 'latex');
-xlim([t(end - 1000), t(end)]);
+xlim([t(end - 25 / h), t(end)]);

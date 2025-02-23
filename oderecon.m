@@ -1,4 +1,4 @@
-function dx = oderecon(H,T,t,x,opt)
+function dx = oderecon(H,T,t,x)
 % dx = ODERECON(H,T,t,x)
 % dx = ODERECON(H,T,t,x,opt)
 %
@@ -12,11 +12,8 @@ function dx = oderecon(H,T,t,x,opt)
 %   t is a scalar time value
 %   x is a colunm vector
 %   opt is an option for basis of evaluated polynomial (can be 'x' or 'bernstein'), default 'x'
-    if ~exist('opt', 'var')
-        opt = 'x';
-    end
     dx = x;
     for i = 1:size(H, 2)
-        dx(i) = EvalPoly(H{1,i}, x', T{1,i}, opt);
+        dx(i) = EvalPoly(H{1,i}, x', T{1,i});
     end
 end
