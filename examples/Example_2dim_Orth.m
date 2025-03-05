@@ -45,14 +45,14 @@ E = eye(size(sigma, 1));
 orthogonality_test(F, deg, vc, c01(1), c01(2));
 
 % getting values
-R = EvalPoly(F'*E, [rx; ry]', sigma, F, sigma);
+R = EvalPoly(F'*E, [rx; ry]', sigma);
 coefs = (R'*R)\R'*rf';
 disp('Coefficients are'); disp(coefs);
 
 % finding values of a reconstructed function
 f1 = zeros(size(x));
 for i = 1:size(x,1)
-    f1(i,:) = EvalPoly(F'*E, [x(i,:); y(i,:)]', sigma, F, sigma) * coefs;
+    f1(i,:) = EvalPoly(F'*E, [x(i,:); y(i,:)]', sigma) * coefs;
 end
 
 % finding error

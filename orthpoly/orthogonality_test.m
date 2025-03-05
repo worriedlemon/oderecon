@@ -47,7 +47,7 @@ function orthogonality_test(F, deg, vc, a, b, varargin)
     switch output
         case 'verbose'
             disp(R .* (abs(R) >= eps));
-            disp("\nIf matrix is diagonal then the transormation is completed successfully\n");
+            disp("If matrix is diagonal then the transormation is completed successfully");
         otherwise
             if isdiag(R .* (abs(R) >= eps))
                 disp('Success');
