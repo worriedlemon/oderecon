@@ -7,11 +7,11 @@ sys_f = 'P7_1.txt';
 
 addpath('..\int_diff');
 
-lsm_on = 1;     % LSM comparison
-method = "raw"; % "raw" | "dmt" - raw method or using delMinorTerms
-tol = 1e-3;
-phase_on = 0;   % Phase portrait
-sync_on = 1;    % Synchronization
+lsm_on = 0;     % LSM comparison
+method = "dmt"; % "raw" | "dmt" - raw method or using delMinorTerms
+tol = 1;
+phase_on = 1;   % Phase portrait
+sync_on = 0;    % Synchronization
 
 disp(['Reconstructing ', sysname, ' system, Variant ', sys_f]);
 x_r = readmatrix(['research\IGN_', sysname, '/', sys_f]);
@@ -25,7 +25,7 @@ x_r = x_r(:, 2 * (1:3)) ./ [1 (7.07 * 10000 / 120) 1];
 start_point = x_r(1, :); % Initial point
 %[~, x_orig] = ode45(@SprottB, t, start_point);
 
-deg = 3; % Degree of reconstructed function
+deg = 2; % Degree of reconstructed function
 vc = size(x_r, 2); % Variables count
 
 eqc = vc; % Equations count
@@ -58,6 +58,8 @@ elseif method == "dmt"
     end
 end
 
+Ho_c{1, :}
+
 [~, x1] = ode78(@(t, x)oderecon(Ho_c, T, t, x), t, start_point);
 
 if (lsm_on)
@@ -83,7 +85,7 @@ if (phase_on)
     figure(1);
     plot3(x(:, 1), x(:, 2), x(:, 3), 'b', 'DisplayName', 'Smoothed original data');
     hold on; grid on;
-    %plot3(x1(:, 1), x1(:, 2), x1(:, 3), 'r', 'DisplayName', 'Orthogonal Polynomials reconstruction');
+    plot3(x1(:, 1), x1(:, 2), x1(:, 3), 'r', 'DisplayName', 'Orthogonal Polynomials reconstruction');
     if (lsm_on)
         %plot3(x2(:, 1), x2(:, 2), x2(:, 3), 'g', 'DisplayName', 'LSM');
         plot3(x2(:, 1), x2(:, 2), x2(:, 3), 'r', 'DisplayName', 'LSM');

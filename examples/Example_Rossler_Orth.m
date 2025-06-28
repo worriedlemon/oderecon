@@ -5,7 +5,7 @@ warning off;
 sys = @Rossler
 
 % Use delMinorTerms
-delminor = 1;
+delminor = 0;
 
 start_point = [4 -2 0]; % Initial point
 Tmax = 100; % Time end
