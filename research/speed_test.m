@@ -36,9 +36,7 @@ for i = 1:length(Tspan) % Time max
     
     coefs = zeros(mc, eqc);
     for eq = 1:eqc
-        for j = 1:mc
-            coefs(j, eq) = trapz(x(:, eq), E(:, j));
-        end
+        coefs(:, eq) = trapz(x(:, eq), E);
     end
 
     coefs = mymult(F, coefs);

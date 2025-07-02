@@ -48,9 +48,7 @@ for k = 1:N
 
     Ho = zeros(mc, eqc);
     for i = 1:eqc
-        for j = 1:mc
-            Ho(j, i) = trapz(x(:, i), E(:, j));
-        end
+        Ho(:, i) = trapz(x(:, i), E);
     end
 
     Ho = F' * Ho;

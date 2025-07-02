@@ -42,10 +42,10 @@ F = orthpoly_F(sigma, t, x, eye(mc), 1);
 if method == "raw"
     coefs = zeros(mc, eqc);
     E = EvalPoly(F', x, sigma);
-    for j = 1:mc
-        for i = 1:eqc
+    for i = 1:eqc
+        %coefs(:, i) = trapz(x(:, i), E));
+        for j = 1:mc
             coefs(j, i) = intdiff4(x(:, i), E(:, j));
-            %coefs(j, i) = trapz(x(:, i), E(:, j));
         end
     end
 

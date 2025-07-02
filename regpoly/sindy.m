@@ -18,7 +18,9 @@ function H = sindy(x, y, sigma, lambda)
     D = B'*y;
     H = Theta \ D; % initial guess: Least-squares
     
-    while (1)
+    k = 0;
+    % avoiding infinite loop (probably, won't ever happen)
+    while (k < 10)
         smallinds = (abs(H) < lambda); % minor indexes are going to be zeroed
         
         if (all(H(smallinds) == 0, "all")) % all values are zeros, stop
@@ -30,5 +32,6 @@ function H = sindy(x, y, sigma, lambda)
             biginds = ~smallinds(:, ind);
             H(biginds, ind) = Theta(:, biginds) \ D(:, ind); 
         end
+        k = k + 1;
     end
 end

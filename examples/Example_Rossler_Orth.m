@@ -26,10 +26,8 @@ coefs_reg = zeros(mc, eqc);
 
 if ~delminor
     E = EvalPoly(F', x, sigma);
-    for j = 1:mc
-        for i = 1:eqc
-            coefs(j, i) = trapz(x(:, i), E(:, j));
-        end
+    for i = 1:eqc
+        coefs(:, i) = trapz(x(:, i), E);
     end
     coefs_reg =  F' * coefs; %matrix F is one for all polynomials
 else

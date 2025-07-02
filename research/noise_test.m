@@ -33,19 +33,21 @@ deg = 2;
 sigma = deglexord(deg, vc);
 mc = size(sigma, 1);
 
-delta = 1e-7;  % regularization parameter
-tol = 5e-2;    % DMT tolerance
-lambda = 1e-1; % SINDy sparsification parameter
+delta = 1e-7;     % regularization parameter
+tol = 5e-2;       % DMT tolerance
+lambda = 1e-1;    % SINDy sparsification parameter
+lambda_orth = 1;  % Orthpoly + SINDy sparsification parameter
 
 noises = logspace(-5, 1, 200);
 
 % Homoscedasticity test
-errt = []; erro = []; errs = []; erro2 = [];
+errt = []; erro = []; errs = []; erro2 = []; erros = [];
+Fs = cell(1, vc);
 for noise_amp = noises
     rx = x + noise_amp * randn(N, vc);
-    ry = [diff(rx) / h; (rx(end, :) - rx(end - 1, :)) / h]; % first order
+    %ry = [diff(rx) / h; (rx(end, :) - rx(end - 1, :)) / h]; % first order
     %ry = diff2(rx) / h; % second order
-    %ry = diff4(rx, t); % fourth order
+    ry = diff4(rx, t); % fourth order
     
     F = orthpoly_t(sigma, t, rx);
     
@@ -84,14 +86,41 @@ for noise_amp = noises
     
     Ht2 = sindy(rx, ry, sigma, lambda);
     errs = [errs norm(Ht2 - Href)];
+
+    Ht3 = Ho;
+    while (1)
+        smallinds = (abs(Ht3) < lambda_orth);
+        if (all(Ht3(smallinds) == 0, "all")) % all small values are already zeros, stop
+            break
+        end
+    
+        Ht3(smallinds) = 0;
+        for ind = 1:vc
+            biginds = ~smallinds(:, ind);
+            sigma_temp = sigma(biginds, :);
+            F_temp = zeros(size(F));
+            F_temp(biginds, biginds) = orthpoly_t(sigma_temp, t, rx);
+            E = EvalPoly(F_temp', rx, sigma);
+            for j = 1:mc
+                Ht3(j, ind) = trapz(rx(:, ind), E(:, j));
+            end
+            Fs{1, ind} = F_temp;
+        end
+    end
+
+    for i = 1:vc
+        Ht3(:, i) = Fs{1, i}' * Ht3(:, i);
+    end
+    erros = [erros norm(Ht3 - Href)];
 end
 
 figure(1);
 loglog(noises, errt, 'r', DisplayName='LSM (Homoscedastic)');
 hold on; grid on;
-loglog(noises, errs, 'g', DisplayName='SINDy (Homoscedastic)');
-loglog(noises, erro, 'b', DisplayName='OrthPoly (Homoscedastic)');
+loglog(noises, errs, 'b', DisplayName='SINDy (Homoscedastic)');
+loglog(noises, erro, 'g', DisplayName='OrthPoly (Homoscedastic)');
 loglog(noises, erro2, 'm', DisplayName='OrthPoly DMT (Homoscedastic)');
+loglog(noises, erros, 'c', DisplayName='OrthPoly-Sindy (Homoscedastic)');
 %title(['Noise resistance (', func2str(system), ')']);
 legend show;
 xtickformat('$%g$'); ytickformat('$%g$'); ztickformat('$%g$');
@@ -100,14 +129,17 @@ ylabel('Coefficients error $\zeta$', 'Interpreter', 'latex');
 set(gca, 'TickLabelInterpreter', 'latex');
 xlim([noises(1), noises(end)])
 
+% uncomment to skip heteroscedasticity calculation
+% return
+
 % Heteroscedasticity test
-errt = []; erro = []; errs = []; erro2 = [];
+errt = []; erro = []; errs = []; erro2 = []; erros = [];
 for noise_amp = noises
     dmx = x - mean(x);
     rx = x + noise_amp * randn(N, vc) .* dmx;
-    ry = [diff(rx) / h; (rx(end, :) - rx(end - 1, :)) / h];
+    %ry = [diff(rx) / h; (rx(end, :) - rx(end - 1, :)) / h];
     %ry = diff2(rx) / h; % second order
-    %ry = diff4(rx, t); % fourth order
+    ry = diff4(rx, t); % fourth order
     F = orthpoly_t(sigma, t, rx);
     
     Ho = zeros(mc, eqc);
@@ -118,7 +150,7 @@ for noise_amp = noises
             %Ho(j, i) = integrate_simpvar(t, E(:, j) .* ry(:, i));
             %Ho(j, i) = intdiff2(rx(:, i),E(:, j));
             %Ho(j, i) = trapz(t, E(:, j) .* ry(:, i));
-            Ho(j, i) = intdiff4(rx(:, i),E(:, j));
+            Ho(j, i) = intdiff4(rx(:, i), E(:, j));
         end
     end
 
@@ -138,14 +170,39 @@ for noise_amp = noises
     
     Ht2 = sindy(rx, ry, sigma, lambda);
     errs = [errs norm(Ht2 - Href)];
+
+    Ht3 = Ho;
+    while (1)
+        smallinds = (abs(Ht3) < lambda_orth);
+        if (all(Ht3(smallinds) == 0, "all")) % all small values are already zeros, stop
+            break
+        end
+    
+        Ht3(smallinds) = 0;
+        for ind = 1:vc
+            biginds = ~smallinds(:, ind);
+            sigma_temp = sigma(biginds, :);
+            F_temp = zeros(size(F));
+            F_temp(biginds, biginds) = orthpoly_t(sigma_temp, t, rx);
+            E = EvalPoly(F_temp', rx, sigma);
+            Ht3(:, ind) = trapz(rx(:, ind), E);
+            Fs{1, ind} = F_temp;
+        end
+    end
+
+    for i = 1:vc
+        Ht3(:, i) = Fs{1, i}' * Ht3(:, i);
+    end
+    erros = [erros norm(Ht3 - Href)];
 end
 
 figure(2);
 loglog(noises, errt, 'r', DisplayName='LSM (Heteroscedastic)');
 hold on; grid on;
-loglog(noises, errs, 'g', DisplayName='SINDy (Heteroscedastic)');
-loglog(noises, erro, 'b', DisplayName='OrthPoly (Heteroscedastic)');
+loglog(noises, errs, 'b', DisplayName='SINDy (Heteroscedastic)');
+loglog(noises, erro, 'g', DisplayName='OrthPoly (Heteroscedastic)');
 loglog(noises, erro2, 'm', DisplayName='OrthPoly DMT (Heteroscedastic)');
+loglog(noises, erros, 'c', DisplayName='OrthPoly-Sindy (Heteroscedastic)');
 %title(['Noise resistance (', func2str(system), ')']);
 legend show;
 xtickformat('$%g$'); ytickformat('$%g$'); ztickformat('$%g$');

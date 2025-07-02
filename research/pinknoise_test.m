@@ -49,8 +49,8 @@ for noise_amp = noises
     F = orthpoly_t(sigma, t, rx);
     
     Ho = zeros(mc, eqc);
+    E = EvalPoly(F', rx, sigma);
     for i = 1:eqc
-        E = EvalPoly(F', rx, sigma);
         for j = 1:mc
             %Ho(j, i) = trapz(t, E(:, j) .* ry(:, i));
             %Ho(j, i) = trapz(rx(:, i), E(:, j));

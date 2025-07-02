@@ -59,10 +59,7 @@ for Tmax = times
     Ho = zeros(mc, eqc);
     E = EvalPoly(F', rx, sigma);
     for i = 1:eqc
-        for j = 1:mc
-            %Ho(j, i) = trapz(rx(:, i), E(:, j));
-            Ho(j, i) = intdiff4(rx(:, i),E(:, j));
-        end
+        Ho(:, i) = trapz(rx(:, i), E);
     end
 
     B = EvalPoly(eye(mc), rx, sigma);
