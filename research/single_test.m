@@ -1,21 +1,17 @@
 warning off;
 
-Hlorenz = [0 -10 10 0 0 0 0 0 0 0; 0 28 -1 0 0 0 -1 0 0 0; 0 0 0 -8/3 0 1 0 0 0 0]';
-Hrossler = [0 0 -1 -1 0 0 0 0 0 0; 0 1 0.2 0 0 0 0 0 0 0; 0.2 0 0 -5.7 0 0 1 0 0 0]';
 sys = @Rossler;
-sysname = 'Rossler';
-Href = Hrossler;
+
+[Href, deg, vc] = load_href(func2str(sys));
 
 Tmax = 50;
-hs = logspace(-4, -1, 20);
 
-vc = 3;
-eqc = 3;
-deg = 2;
+hs = logspace(-4, -1, 20);
+N = length(hs);
+
+eqc = vc;
 sigma = deglexord(deg, vc);
 mc = size(sigma, 1);
-
-N = length(hs);
 
 delta = 0.01; % regularization parameter
 

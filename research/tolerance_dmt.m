@@ -2,14 +2,10 @@ rng_i default;
 close all;
 warning off;
 
-% System Simulation
-Hlorenz = [0 -10 10 0 0 0 0 0 0 0; 0 28 -1 0 0 0 -1 0 0 0; 0 0 0 -8/3 0 1 0 0 0 0]';
-Hrossler = [0 0 -1 -1 0 0 0 0 0 0; 0 1 0.3 0 0 0 0 0 0 0; 0.3 0 0 -5.7 0 0 1 0 0 0]';
-
 sys = @Rossler %#ok
 
 sysname = func2str(sys);
-Href = eval(['H', lower(sysname)]); % Used coefficients
+[Href, deg, vc] = load_href(sysname); % Used coefficients
 
 start_point = [4 -2 0]; % Initial point
 Tmax = 100; % Time end
@@ -17,8 +13,6 @@ h = 1e-2; % Step
 
 [t, x] = ode45(sys, 0:h:Tmax, start_point);
 
-deg = 2; % Degree of reconstructed function
-vc = size(x, 2); % Variables count
 eqc = vc; % Equations count
 sigma = deglexord(deg, vc);
 

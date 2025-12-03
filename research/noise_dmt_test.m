@@ -2,15 +2,12 @@ rng_i default;
 warning off;
 close all
 
-% System coefficients
-Hlorenz = [0 -10 10 0 0 0 0 0 0 0; 0 28 -1 0 0 0 -1 0 0 0; 0 0 0 -8/3 0 1 0 0 0 0]';
-Hrossler = [0 0 -1 -1 0 0 0 0 0 0; 0 1 0.3 0 0 0 0 0 0 0; 0.3 0 0 -5.7 0 0 1 0 0 0]';
-
 % Used system
 %system = @Rossler
 system = @Lorenz
 
-Href = eval(['H', lower(func2str(system))]); % Used coefficients
+[Href, deg, vc] = load_href(func2str(system)]); % Used coefficients
+
 Ttrans = 100; % Transient time
 Tmax = 5; % Time of experimental series for Lorenz
 %Tmax = 10; % Time of experimental series for Rossler
@@ -25,16 +22,16 @@ start_point = x(end, :);
 
 
 y = transpose(system(0, x'));
-[N, vc] = size(x);
-
-eqc = size(y, 2);
-deg = 2;
+N = size(x, 1);
+eqc = vc;
 
 sigma = deglexord(deg, vc);
 mc = size(sigma, 1);
 
-noises = logspace(-4, 1, 10);
-tols = logspace(-3, 0, 20);
+noises = logspace(-5, -1, 9);
+noises = [noises 0];
+%tols = logspace(-5, 0, 20); % tolerance for Rossler
+tols = logspace(-4, 1, 20); % tolerance for Lorenz
 erro = zeros(length(noises), length(tols));
 mcs = erro;
 for k = 1:length(noises)
@@ -48,7 +45,7 @@ for k = 1:length(noises)
     for i = 1:length(tols)
         tol = tols(i);
         for j = 1:eqc
-            [~, ~, ~, Ho(:, j)] = delMinorTerms_dy(t, x(:, j), x, y(:, j), F, sigma, tol, 0);
+            [~, ~, ~, Ho(:, j)] = delMinorTerms_dy(t, rx(:, j), rx, ry(:, j), F, sigma, tol, 0);
         end
         mcs(k, i) = sum(Ho ~= 0, "all");
         erro(k, i) = norm(Ho - Href);
@@ -56,26 +53,36 @@ for k = 1:length(noises)
 end
 
 figure(1);
-cls = colormap("hsv");
-cls = cls(floor(linspace(1, size(cls, 1), 6/5 * length(noises))), :);
-subplot(2, 1, 1);
-for k = 1:length(noises)
-    nstr = num2str(noises(k));
-    loglog(tols, erro(k, :), Marker='.', Color=cls(k, :));
-    hold on; grid on;
-end
+semilogx(tols, mcs(end, :), Marker='.');
+hold on; grid on;
+semilogx(tols, tols * 0 + sum(Href ~= 0, "all"), 'k--', DisplayName='Actual monomials count');
 xtickformat('$%g$'); ytickformat('$%g$');
 xlabel('Tolerance $\eta$', 'Interpreter', 'latex');
-ylabel('Coefficients error $\zeta$', 'Interpreter', 'latex');
+ylabel('Monomials count $L$', 'Interpreter', 'latex');
 set(gca, 'TickLabelInterpreter', 'latex');
+ylim([0; mc * vc]);
 
-subplot(2, 1, 2);
-for k = 1:length(noises)
+figure(2);
+cls = colormap("hsv");
+cls = cls(floor(linspace(1, size(cls, 1), 6/5 * length(noises))), :);
+% subplot(2, 1, 1);
+% for k = 1:length(noises)
+%     nstr = num2str(noises(k));
+%     loglog(tols, erro(k, :), Marker='.', Color=cls(k, :));
+%     hold on; grid on;
+% end
+% xtickformat('$%g$'); ytickformat('$%g$');
+% xlabel('Tolerance $\eta$', 'Interpreter', 'latex');
+% ylabel('Coefficients error $\zeta$', 'Interpreter', 'latex');
+% set(gca, 'TickLabelInterpreter', 'latex');
+% 
+% subplot(2, 1, 2);
+for k = 1:length(noises)-1
     nstr = num2str(noises(k));
     semilogx(tols, mcs(k, :), Marker='.', Color=cls(k, :), DisplayName=['$\sigma=', nstr, '$']);
     hold on; grid on;
 end
-loglog(tols, tols * 0 + sum(Href ~= 0, "all"), 'k--', DisplayName='Actual monomials count');
+semilogx(tols, tols * 0 + sum(Href ~= 0, "all"), 'k--', DisplayName='Actual monomials count');
 legend(Interpreter='latex');
 xtickformat('$%g$'); ytickformat('$%g$');
 xlabel('Tolerance $\eta$', 'Interpreter', 'latex');
@@ -83,4 +90,4 @@ ylabel('Monomials count $L$', 'Interpreter', 'latex');
 set(gca, 'TickLabelInterpreter', 'latex');
 ylim([0; mc * vc]);
 
-sgtitle('Monomials count depending on tolerance with different levels of noise magnitude $\sigma$', Interpreter='Latex')
+%sgtitle('Monomials count depending on tolerance with different levels of noise magnitude $\sigma$', Interpreter='Latex')

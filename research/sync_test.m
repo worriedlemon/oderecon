@@ -2,16 +2,14 @@ rng_i default;
 warning off;
 
 % Initial coefficients and points
-Hlorenz = [0 -10 10 0 0 0 0 0 0 0; 0 28 -1 0 0 0 -1 0 0 0; 0 0 0 -8/3 0 1 0 0 0 0]';
 Plorenz = [0.67963 1.29782 7.83735];
-Hrossler = [0 0 -1 -1 0 0 0 0 0 0; 0 1 0.2 0 0 0 0 0 0 0; 0.2 0 0 -5.7 0 0 1 0 0 0]';
 Prossler = [4.57073 -3.0225 0.13198];
 
 % Used system
 system = @Rossler
 
 sysname = func2str(system);
-Href = eval(['H', lower(sysname)]);
+[Href, deg, vc] = load_href(sysname); % Used coefficients
 Pref = eval(['P', lower(sysname)]);
 
 Tmax = 250; % Time end
@@ -19,9 +17,8 @@ h = 1e-2; % Step
 
 [t, x] = ode45(system, 0:h:Tmax, Pref);
 
-[N, vc] = size(x);
+N = size(x, 1);
 eqc = vc;
-deg = 2;
 
 sigma = deglexord(deg, vc);
 mc = size(sigma, 1);

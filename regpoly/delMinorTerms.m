@@ -1,13 +1,13 @@
-function [h , T] = delMinorTerms(X, V, O, eta, varargin)
+function [h , T] = delMinorTerms(varargin)
 %DELMINORTERMS constructs and interpolating polynomial on the order ideal O
 % [h, T] = DELMINORTERMS(X,V,O,eta)
 %
-% [h, T] = DELMINORTERMS(X,V,O,eta)
 % [h, T] = DELMINORTERMS(X,V,O,eta, h0)
+%
 % [h, T] = DELMINORTERMS(X,V,O,eta, h0, deleteminor)
-
+% 
 % [h, T] = DELMINORTERMS(X,V,O,eta, h0, deleteminor,alpha)
-
+% 
 % [h, T] = DELMINORTERMS(X,V,O,eta, h0, deleteminor,alpha, irls)
 % 
 % returns h - set of coefficients by ideal
@@ -18,7 +18,6 @@ function [h , T] = delMinorTerms(X, V, O, eta, varargin)
 %   1    x    y    x^2   xy  y^2  x^2y  xy^2  x^2y^2
 %  [0 0; 1 0; 0 1; 2 0; 1 1; 0 2; 2 1;  1 2;  2 2] 
 % eta is a tolerance
-% opt is optional parameter for polynomial basis (default is 'x')
 % h0 is an initial value of h
 % set deleteminor to 0 if you want to preserve the same size of T as O, 1
 % otherwise (default)
@@ -30,21 +29,23 @@ irls = 0;
 
 deleteminor = 1;
 
-[N, ~] = size(X);
-[L, M] = size(O);
-
-narg = nargin - 4;
-
-if narg >= 1
-    h = varargin{1,1};
+if nargin >= 4
+    X = varargin{1,1}; [N, ~] = size(X);
+    V = varargin{1,2};
+    O = varargin{1,3}; [L, M] = size(O);
+    eta = varargin{1,4};
 end
 
-if narg >= 4
-    irls = varargin{1,4};
+if nargin >= 5
+    h = varargin{1,5};
 end
 
-if narg == 0
-    E = EvalPoly(eye(L), X, O);
+if nargin >= 8
+    irls = varargin{1,8};
+end
+
+if nargin <= 4
+    E = EvalPoly(eye(L),X,O);
     if irls
         h = IRLS(E,V,X,O,eta,alp);
     else
@@ -52,12 +53,12 @@ if narg == 0
     end
 end
 
-if narg == 2
-    deleteminor = varargin{1,2};
+if nargin >= 6
+    deleteminor = varargin{1,6};
 end
 
-if narg == 3
-    alp = varargin{1,3};
+if nargin >= 7
+    alp = varargin{1,7};
 end
 
 
@@ -70,8 +71,8 @@ Ttmp = T;
 zeroingT = ones(L,1);
 reindex = 1:L;
 L0 = L;
-
-while 1/N*norm(V - EvalPoly(htmp, X, Ttmp)) <= eta && L > 1
+zeroingT0 = zeroingT;
+while 1/N*norm(V - EvalPoly(htmp,X,Ttmp)) <= eta && L > 1
     h = htmp;
     T = Ttmp;
     
@@ -81,16 +82,15 @@ while 1/N*norm(V - EvalPoly(htmp, X, Ttmp)) <= eta && L > 1
     for k = 1:L
         t = zeros(L,1);
         t(k) = h(k); %extract k-th monomial
-        tmp = norm(EvalPoly(t, X, T));
+        tmp = norm(EvalPoly(t,X,T));
         if tmp < minval
             minval = tmp;
             mink = k;
         end
     end
     
-    lmink = reindex(mink);
-    
     %exclude mink-th element from T
+    zeroingT0 = zeroingT;
     if L > 1
         zeroingT(reindex(mink)) = 0;
         
@@ -109,37 +109,36 @@ while 1/N*norm(V - EvalPoly(htmp, X, Ttmp)) <= eta && L > 1
         L = L - 1;
        
     end
-    E = EvalPoly(eye(L), X, Ttmp);
+    E = EvalPoly(eye(L),X,Ttmp);
     
     if irls
         htmp = IRLS(E,V,X,Ttmp,eta,alp);
     else
-        htmp = (E'*E + eta)\(E'*V);
+        htmp = (E'*E + eye(L)*1e-15)\(E'*V);
         % [Q,R] = qr(E);
-        % R1 = R(1:L,1:L);
         % Q1 = Q(:,1:L);
+        % R1 = R(1:L,1:L);
         % htmp = R1\(Q1'*V);
 
 
         if alp ~= 0
             opts = optimoptions('fminunc','Display','none');
-            htmp = fminunc(@(h)objective1(h, V, X, Ttmp, alp),htmp,opts);
+            htmp = fminunc(@(h)objective1(h,V, X,Ttmp,alp),htmp,opts);
         end
     end
 end
 
-if 1/N*norm(V - EvalPoly(htmp, X, Ttmp)) <= eta
+if 1/N*norm(V - EvalPoly(htmp,X,Ttmp)) <= eta && L == 1
     h = htmp;
     T = Ttmp;
-elseif L < L0
-    zeroingT(lmink) = 1;
+    zeroingT0 = zeroingT;
 end
 
 if ~deleteminor
     htmp = zeros(L0,1);
     ctr = 1;
     for i = 1:L0
-        if( zeroingT(i) ~= 0) && (ctr <= length(h))
+        if(zeroingT0(i) ~= 0) && (ctr <= length(h))
             htmp(i) = h(ctr);
             ctr = ctr + 1;
         end
@@ -149,7 +148,7 @@ if ~deleteminor
 end
 end
 
-function fun = objective1(h, V, X, Ttmp, alpha)
+function fun = objective1(h,V,X,Ttmp,alpha)
 %objective for L1-regularized LSM
-    fun = (norm(V - EvalPoly(h, X, Ttmp)))^2 + alpha*sum(abs(h));
+    fun = (norm(V - EvalPoly(h,X,Ttmp)))^2 + alpha*sum(abs(h));
 end

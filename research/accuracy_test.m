@@ -1,14 +1,10 @@
 rng_i default;
 warning off;
 
-Hlorenz = [0 -10 10 0 0 0 0 0 0 0; 0 28 -1 0 0 0 -1 0 0 0; 0 0 0 -8/3 0 1 0 0 0 0]';
-Hrossler = [0 0 -1 -1 0 0 0 0 0 0; 0 1 0.3 0 0 0 0 0 0 0; 0.3 0 0 -5.7 0 0 1 0 0 0]';
-
 %system = @Rossler
 system = @Lorenz
 
-sysname = func2str(system);
-Href = eval(['H', lower(sysname)]); % Used coefficients
+[Href, deg, vc] = load_href(func2str(system)); % Used coefficients
 
 Tmax = 10;
 Tmaxs = 10:10:100; % Time end
@@ -18,20 +14,17 @@ start_point = [4 -2 0]; % Initial point
 
 delta = 1e-5; % regularization parameter
 
+eqc = vc;
+
+sigma = deglexord(deg, vc);
+mc = size(sigma, 1);
+
 nrm = zeros(3, length(hs));
 for i = 1:length(hs)
     disp(i)
     [t, x] = ode78(system, 0:hs(i):Tmax, start_point);
     y = [diff(x); (x(end, :) - x(end - 1, :))] / h; % first order
     %y = diff4(x, t); % fourth order
-
-    [N, vc] = size(x);
-    
-    eqc = size(y, 2);
-    deg = 2;
-    
-    sigma = deglexord(deg, vc);
-    mc = size(sigma, 1);
     
     B = EvalPoly(eye(mc), x, sigma);
     Ht = (B'*B + delta*eye(mc))\B'*y;
@@ -45,9 +38,9 @@ for i = 1:length(hs)
     for k = 1:eqc
         for j = 1:mc
             %Ho_x(j, k) = trapz(t, EvalPoly(F(j, :)', x, sigma) .* y(:, k));
-            %Ho_x(j, k) = trapz(x(:, k), EvalPoly(F(j, :)', x, sigma));
+            Ho_x(j, k) = trapz(x(:, k), EvalPoly(F(j, :)', x, sigma));
             %Ho_x(j, k) = integrate_simpvar(x(:, k), EvalPoly(F(j, :)', x, sigma));
-            Ho_x(j, k) = integrate_simpvar(t, EvalPoly(F(j, :)', x, sigma) .* y(:, k));
+            %Ho_x(j, k) = integrate_simp(t, EvalPoly(F(j, :)', x, sigma) .* y(:, k));
         end
     end
 

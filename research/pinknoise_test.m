@@ -1,16 +1,12 @@
 rng_i default;
 warning off;
-%close all
-
-% System coefficients
-Hlorenz = [0 -10 10 0 0 0 0 0 0 0; 0 28 -1 0 0 0 -1 0 0 0; 0 0 0 -8/3 0 1 0 0 0 0]';
-Hrossler = [0 0 -1 -1 0 0 0 0 0 0; 0 1 0.3 0 0 0 0 0 0 0; 0.3 0 0 -5.7 0 0 1 0 0 0]';
+close all
 
 % Used system
 %system = @Rossler
 system = @Lorenz
 
-Href = eval(['H', lower(func2str(system))]); % Used coefficients
+[Href, deg, vc] = load_href(func2str(system)); % Used coefficients
 Tmax = 10; % Time end
 h = 1e-3; % Step
 start_point = [4 -2 0]; % Initial point
@@ -24,10 +20,8 @@ start_point = x(end,:);
 [t, x] = ode78(system, 0:h:Tmax, start_point);
 y = transpose(system(0, x'));
 
-[N, vc] = size(x);
-
-eqc = size(y, 2);
-deg = 2;
+N = size(x, 1);
+eqc = vc;
 
 sigma = deglexord(deg, vc);
 mc = size(sigma, 1);

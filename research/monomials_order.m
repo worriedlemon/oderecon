@@ -2,15 +2,11 @@ rng_i default;
 warning off;
 close all
 
-% System coefficients
-Hlorenz = [0 -10 10 0 0 0 0 0 0 0; 0 28 -1 0 0 0 -1 0 0 0; 0 0 0 -8/3 0 1 0 0 0 0]';
-Hrossler = [0 0 -1 -1 0 0 0 0 0 0; 0 1 0.3 0 0 0 0 0 0 0; 0.3 0 0 -5.7 0 0 1 0 0 0]';
-
 % Used system
 %system = @Rossler
 system = @Lorenz
 
-Href = eval(['H', lower(func2str(system))]); % Used coefficients
+[Href, deg, vc] = load_href(func2str(system)); % Used coefficients
 Ttrans = 100; % Transient time
 Tmax = 5; % Time of experimental series for Lorenz
 %Tmax = 10; % Time of experimental series for Rossler
@@ -25,10 +21,8 @@ start_point = x(end, :);
 
 
 y = transpose(system(0, x'));
-[N, vc] = size(x);
-
-eqc = size(y, 2);
-deg = 2;
+N = size(x, 1);
+eqv = vc;
 
 sigma = deglexord(deg, vc);
 mc = size(sigma, 1);

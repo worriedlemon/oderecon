@@ -1,5 +1,7 @@
-function F = orthpoly_t(sigma, t, x_t)
+function [F, nrms] = orthpoly_t(sigma, t, x_t, nrm)
     % -- F = orthpoly_t(sigma, t, x_y)
+    % -- F = orthpoly_t(sigma, t, x_y, nrm)
+    % -- [F, nrms] = ORTHPOLY(____)
     %     Returns relations matrix F, where the row
     %     describes polynomial coefficients. This
     %     algorithm constructs orthogonal polynomials
@@ -7,7 +9,49 @@ function F = orthpoly_t(sigma, t, x_t)
     %     return norms of every polynomial nrms.
     %
     %     sigma - order ideal for polynomials
-    %     F - matrix for orthogonalization
-        
-    [F, ~] = orthpoly_F(sigma, t, x_t, eye(size(sigma, 1)), 1);
+    %     a, b - orthogonality interval edge values [a; b]
+    %     nrm - logical value, indicating whether
+    %       polynomials should be normalized (if so,
+    %       dot product will be Kroneckers symbol)
+    
+    
+    if ~exist('nrm', 'var')
+        nrm = 1;
+    end
+    
+    N = size(sigma, 1);
+    F = eye(N);
+    nrms = ones(N, 1);
+    
+    for i = 1:N
+        for k = 1:i-1
+            n = EvalPoly(F(k, :)', x_t, sigma);
+            temp = trapz(t, EvalPoly(F(i, :)', x_t, sigma) .* n) .* F(k, :);
+            %temp = integrate_simpvar(t, EvalPoly(F(i, :)', x_t, sigma) .* n) .* F(k, :);
+            %temp = intdiff4(t, EvalPoly(F(i, :)', x_t, sigma) .* n) .* F(k, :);
+            if ~nrm
+                temp = temp / trapz(t, n .^ 2);
+            end
+            F(i, :) = F(i, :) - temp;
+        end
+        intgr = trapz(t, EvalPoly(F(i, :)', x_t, sigma) .^ 2);
+        %intgr = integrate_simpvar(t, EvalPoly(F(i, :)', x_t, sigma) .^ 2);
+        %intgr = intdiff4(t, EvalPoly(F(i, :)', x_t, sigma) .^ 2);
+        c = sqrt(intgr);
+        if nrm
+            F(i, :) = F(i, :) / c;
+        else
+            nrms(i) = c;
+        end
+
+        %check for orthogonality
+        % ni = EvalPoly(F(i, :)', x_t, sigma);
+        % for k = 1:i-1
+        %     n = EvalPoly(F(k, :)', x_t, sigma); % integral of theta_k
+        %     temp = trapz(t, ni .* n);
+        %     if abs(temp) > 2e-15
+        %         warning('Orthogonality test does not reach 2e-15 tolerance');
+        %     end
+        % end
+    end
 end
