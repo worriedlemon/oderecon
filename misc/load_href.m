@@ -96,7 +96,7 @@ function [Href, deg, eqc, mc] = load_href(name)
          0     0; % xy
          0     0; % y^2
          0     0; % x^3
-         0     1; % x^2y
+         0     -1; % x^2y
          0     0; % xy^2
          0     0; % y^3
     ];

@@ -9,9 +9,9 @@ sysname = func2str(sys);
 
 [Href, deg, vc, mc] = load_href(sysname); % Used coefficients
 
-T_range = [100; 200];    % relatively large T
-h_range = [1e-4; 1e-2];  % relatively small h
-x_range = [-10; 10];
+T_range = [100; 150];    % relatively large T
+h_range = [1e-3; 5e-2];  % relatively small h
+x_range = [-5; 5];
 c01 = [0; 1];
 
 sigma = deglexord(deg, vc);
@@ -47,7 +47,7 @@ end
 methods_pairs = nchoosek(1:mtdn, 2);
 methods_pairs_size = size(methods_pairs, 1);
 
-tests = 30;
+tests = 5;
 pair_resultsXi = -ones(mtdn);
 pair_resultsR = pair_resultsXi;
 for p = 1:methods_pairs_size
@@ -72,10 +72,10 @@ for p = 1:methods_pairs_size
         winsR = winsR + (Rscript1 < Rscript2);
     end
 
-    pair_resultsXi(methods_pairs(p, 1), methods_pairs(p, 2)) = winsXi / tests;
-    pair_resultsXi(methods_pairs(p, 2), methods_pairs(p, 1)) = 1 - winsXi / tests;
-    pair_resultsR(methods_pairs(p, 1), methods_pairs(p, 2)) = winsR / tests;
-    pair_resultsR(methods_pairs(p, 2), methods_pairs(p, 1)) = 1 - winsR / tests;
+    pair_resultsXi(methods_pairs(p, 1), methods_pairs(p, 2)) = winsXi;
+    pair_resultsXi(methods_pairs(p, 2), methods_pairs(p, 1)) = tests - winsXi;
+    pair_resultsR(methods_pairs(p, 1), methods_pairs(p, 2)) = winsR;
+    pair_resultsR(methods_pairs(p, 2), methods_pairs(p, 1)) = tests - winsR;
 end
 
 disp('Results matrixes:');
