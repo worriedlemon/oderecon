@@ -25,18 +25,31 @@ function Ht = orthpoly_int_sindy(t,x,sigma,lambda_orth)
     E0 = EvalPoly(F0', rx, sigma);
     for i = 1:eqc
         for j = 1:mc
-    
-            % Es = integrate_trapz(E0(:, j),0,t);
-            % Es0 = trapz(t,Es)/(t(end) - t(1)); % calculate bias
-            % Es = Es - Es0;
-            % 
-            % H0(j, i) =  trapz(t, Es' .* rx(:, i));
-    
             H0(j, i) = h_ji_byint(E0(:, j),t,rx(:, i));
         end
     end
     
     Ht3 = F0' * H0; %ordinary H form orthogonal
+    
+    for jj = 1:5
+        %calculate K1
+        K1 = zeros(eqc,1);
+        for i = 1:eqc
+            K1(i) = trapz(t,rx(:,i))/sum(F0' * H0(:,i))/(t(end)-t(1));
+        end
+        H0 = zeros(mc, eqc);
+
+        for i = 1:eqc
+            F0 = orthpoly_t_integration(sigma, t, rx, K1(i)); % orthogonal polynomial matrix of integrals
+            E0 = EvalPoly(F0', rx, sigma);
+            for j = 1:mc
+                H0(j, i) = h_ji_byint(E0(:, j),t,rx(:, i));
+            end
+            Ht3(:,i) = F0' * H0(:,i); %ordinary H form orthogonal
+        end
+    end
+
+
     k = 0;
     % avoiding infinite loop (probably, won't ever happen)
     while (k < 10)

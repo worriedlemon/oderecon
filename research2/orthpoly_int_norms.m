@@ -7,7 +7,7 @@ catch Me
 end
 
 % Used system
-sys = @VDPL
+sys = @Lorenz
 
 sysname = func2str(sys);
 
@@ -28,9 +28,7 @@ eqc = vc;
 sigma = deglexord(deg, vc);
 T = mat2cell(repmat(sigma, 1, eqc), mc, repmat(vc, 1, eqc));
 
-lambda = 1e-2;    % SINDy sparsification parameter
-lambda_orth = 1e-2;  % Orthpoly + SINDy sparsification parameter
-
+lambda = min(abs(Href(Href ~= 0))) * 0.8; % SINDy sparsification parameter
 nk = 141;
 snrs = linspace(90, 20, nk);
 
@@ -82,7 +80,7 @@ for k = 1:nk
             erro(2, k) = nn_norm(t, x_new, x);
             
             %% OrthPoly-SINDy
-            Hos = orthpoly_sindy(t,rx,sigma,lambda_orth);
+            Hos = orthpoly_sindy(t,rx,sigma,lambda);
             erros(1, k) = norm(Href - Hos);
             Hos = mat2cell(Hos, mc, ones(1, eqc));
             [~, x_new] = ode45(@(t, x)oderecon(Hos, T, t, x), t, start_point);
@@ -90,7 +88,7 @@ for k = 1:nk
         end
     
         %% OrthPoly-Int-SINDy
-        Hois = orthpoly_int_sindy(t,rx,sigma,lambda_orth);
+        Hois = orthpoly_int_sindy(t,rx,sigma,lambda);
         errois(1, k) = errois(1, k) + norm(Href - Hois);
         Hois = mat2cell(Hois, mc, ones(1, eqc));
         [~, x_new] = ode45(@(t, x)oderecon(Hois, T, t, x), t, start_point);
@@ -137,4 +135,3 @@ ylabel('NNRMS error $\mathcal{{R}}$', Interpreter='latex');
 set(gca, TickLabelInterpreter='latex');
 xlim([min(snrs), max(snrs)])
 set(gca, Xdir='reverse');
-

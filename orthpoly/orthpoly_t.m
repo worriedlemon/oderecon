@@ -9,7 +9,8 @@ function [F, nrms] = orthpoly_t(sigma, t, x_t, nrm)
     %     return norms of every polynomial nrms.
     %
     %     sigma - order ideal for polynomials
-    %     a, b - orthogonality interval edge values [a; b]
+    %     t - time series
+    %     x_t - values, depending on time series
     %     nrm - logical value, indicating whether
     %       polynomials should be normalized (if so,
     %       dot product will be Kroneckers symbol)

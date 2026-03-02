@@ -65,6 +65,10 @@ function H = wsindy(t, x, sigma, lambda)
         Htemp = G \ B(:,k);
         for iter = 1:10
             small = abs(Htemp) < lambda;
+            if (all(Htemp(small) == 0, "all"))
+                break
+            end
+
             Htemp(small) = 0;
             big = ~small;
             if sum(big) > 0

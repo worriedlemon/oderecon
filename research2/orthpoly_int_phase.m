@@ -7,7 +7,7 @@ figure(1);
 clf
 
 % Used system
-sys = @VDPL
+sys = @Rossler
 sysname = func2str(sys);
 
 % Used system coefficients and initial point
@@ -35,10 +35,12 @@ noise_amp = snr2amp(x_ref, snrdb);
 x_noised = x_ref + noise_amp * randn(size(x_ref)); 
 
 %% CALCULATION
-lambda = 1e-2;
-Hoi = orthpoly_int_sindy(t, x_noised, sigma, lambda);
+lambda = 1e-1;
+Hoi = orthpoly_int_sindy(t, x_noised, sigma, lambda)
 
 H = mat2cell(Hoi, mc, ones(1, eqc));
+
+prettyABM(H, T, 1);
 
 % if (~input('To continue write 1, to stop write 0: '))
 %    return
