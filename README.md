@@ -31,10 +31,10 @@ $$\begin{cases}
 Then, we can solve this reconstructed system with a standard matlab solver like `ode45`. Such a solution is shown yellow in the right pane.
 
 ## Installation
-Download a zip file or via git, switch present working directory to ODERECON directory and run `setup` script with argument `path`. This step will add all necessary paths for correct script execution.
+Download a zip file or via `git`, switch present working directory to ODERECON directory and run `setup_oderecon` script with argument `path`. This step will add all necessary paths for correct script execution.
 
 ```matlab
->> setup path
+>> setup_oderecon path
 ```
 
 Present working directory can be obtained with `pwd` command. Check whether the output is like `.../ODERECON`, where `...` substitutes your archive unpack folder.
@@ -42,16 +42,16 @@ Present working directory can be obtained with `pwd` command. Check whether the 
 If you want, save path not to execute the script next time:
 
 ```matlab
->> setup path
+>> setup_oderecon path
 >> savepath    %optional
 ```
 
 ## Setup information
 
-Script file `setup` was made to simplify the operations. Command `setup` has specific syntax:
+Script file `setup_oderecon` was made to simplify the operations. Command `setup` has specific syntax:
 
 ```matlab
-setup arg...
+setup_oderecon <arg...>
 ```
 
 Argument `arg` can be one of those values:
@@ -60,10 +60,10 @@ Argument `arg` can be one of those values:
 * `octave` - setting environment variable for GNU Octave support;
 * `format` - setting `format short g` for numeric output.
 
-*Example*: if you are using **GNU Octave** instead of Matlab, you can set paths by running `setup` script with two parameters like this:
+*Example*: if you are using **GNU Octave** instead of Matlab, you can set paths by running `setup_oderecon` script with two parameters like this:
 
 ```matlab
->> setup path octave
+>> setup_oderecon path octave
 ```
 
 ## How to use

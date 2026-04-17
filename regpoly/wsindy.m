@@ -50,11 +50,11 @@ function H = wsindy(t, x, sigma, lambda)
         
         % Интегралы с нормировкой
         for k = 1:vc
-            B(l,k) = -sum(x(idx, k)' .* dphi_vals')*h; %Euler
+            B(l,k) = -sum(x(idx, k)' .* dphi_vals', "all")*h; %Euler
             %B(l,k) = -trapz(x(idx, k)' .* dphi_vals')*dt; %Trapz
         end
         for j = 1:M
-            G(l,j) = sum(Theta(idx,j) .* phi_vals)*h; %Euler
+            G(l,j) = sum(Theta(idx,j) .* phi_vals, "all")*h; %Euler
             %G(l,j) = trapz(Theta(idx,j) .* phi_vals)*dt; %Trapz
         end
     end
