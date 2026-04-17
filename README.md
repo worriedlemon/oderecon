@@ -1,9 +1,12 @@
 # ODERECON
 This repository contains codes for reconstructing dynamical systems using the least square method. 
 
+> [!IMPORTANT]
+> The research directories moved to a new repo at: https://github.com/worriedlemon/oderecon-research
+
 ## Overview
 
-Suppose, the problem is to find a description of a continuous dynamical system in a form of an autonomous odrinary differential equation:
+Suppose, the problem is to find a description of a continuous dynamical system in a form of an autonomous ordinary differential equation:
 $$\dot{\mathbf{x}} = \mathbf{f}(\mathbf{x}).$$
 
 Let us have a number of sample points of the trajectiory $\mathbf{x}(t_i)$, but the mathematical description of the function $\mathbf{f}(\mathbf{x})$ is unknown. 
@@ -51,10 +54,10 @@ If you want, save path not to execute the script next time:
 Script file `setup_oderecon` was made to simplify the operations. Command `setup` has specific syntax:
 
 ```matlab
-setup_oderecon <arg...>
+>> setup_oderecon {arg...}
 ```
 
-Argument `arg` can be one of those values:
+Each argument of `arg` vector can be one of those values:
 
 * `path` - adding all necessary paths for scripts execution;
 * `octave` - setting environment variable for GNU Octave support;
