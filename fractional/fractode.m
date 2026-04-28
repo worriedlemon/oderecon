@@ -1,25 +1,40 @@
-function [t, y] = fractode(fun, t, y0, alpha)
-    N = length(t);
-    vc = length(y0);
-    y = zeros(N, vc);
-    y(1, :) = y0;
+function [t, Y] = fractode(fun, t, y0, alpha)
+    % FRACTODE - Solving fractional differential equations (FDE) system
+    % using Adams-Bashforth method
     
-    w = zeros(1, N);
-    w(1) = 1;
-    for j = 2:N
-        w(j) = -w(j-1) * (alpha - j + 2) / (j - 1);
-    end
-
-    for i = 2:N
-        dy = zeros(1, vc);
-        for j = 1:i-1
-            s = w(j) * y(i - j, :);
-            if (norm(s) < 1e-2)
-                break;
-            end
-            dy = dy + s;
+    t = t(:);
+    t0 = t(1);
+    T = t(end);
+    N = length(t) - 1;
+    
+    h = (T - t0) / N;
+    dim = length(y0);
+    
+    Y = zeros(N+1, dim);
+    Y(1, :) = y0;
+    
+    % weights
+    w = (1:N).^alpha - (0:(N-1)).^alpha;
+    
+    % coefficient
+    ga = h^alpha / gamma(alpha+1);
+    
+    % array for right side values, as we need the whole history
+    F = zeros(N, dim);
+    
+    for n = 1:N
+        if (n == 1)
+            % Euler
+            F(1, :) = fun(t0, y0')';
+        elseif (n == 2)
+            % Adams-Bashfort 2 order
+            F(n, :) = 3/2 * fun(t(n), Y(n, :)')' - 1/2 * fun(t(n-1), Y(n-1, :)')';
+        else
+            % Adams-Bashfort 3 order
+            F(n, :) = 23/12 * fun(t(n), Y(n, :)')' - 16/12 * fun(t(n-1), Y(n-1, :)')' + 5/12 * fun(t(n-2), Y(n-2, :)')';
         end
-        val = fun(t, y(i - 1, :));
-        y(i, :) = (t(i) - t(i-1))^alpha * val' - dy;
+
+        % Next point
+        Y(n+1, :) = Y(1, :) + ga * w(n - (0:(n-1))) * F(1:n, :);
     end
 end
