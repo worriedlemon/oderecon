@@ -14,27 +14,25 @@ function [t, Y] = fractode(fun, t, y0, alpha)
     Y(1, :) = y0;
     
     % weights
-    w = (1:N).^alpha - (0:(N-1)).^alpha;
+    w = (1:N)'.^alpha - (0:(N-1))'.^alpha;
     
     % coefficient
-    ga = h^alpha / gamma(alpha+1);
+    ga = h.^alpha ./ gamma(alpha+1);
     
     % array for right side values, as we need the whole history
     F = zeros(N, dim);
     
     for n = 1:N
         if (n == 1)
-            % Euler
-            F(1, :) = fun(t0, y0')';
+            F(n, :) = fun(t0, y0')';
         elseif (n == 2)
-            % Adams-Bashfort 2 order
-            F(n, :) = 3/2 * fun(t(n), Y(n, :)')' - 1/2 * fun(t(n-1), Y(n-1, :)')';
+            F(n, :) = 1/2 * (3 * fun(t(n), Y(n, :)')' - fun(t(n-1), Y(n-1, :)')');
+        elseif (n == 3)
+            F(n, :) = 1/12 * (23 * fun(t(n), Y(n, :)')' - 16 * fun(t(n-1), Y(n-1, :)')' + 5 * fun(t(n-2), Y(n-2, :)')');
         else
-            % Adams-Bashfort 3 order
-            F(n, :) = 23/12 * fun(t(n), Y(n, :)')' - 16/12 * fun(t(n-1), Y(n-1, :)')' + 5/12 * fun(t(n-2), Y(n-2, :)')';
+            F(n, :) = 1/24 * (55 * fun(t(n), Y(n, :)')' - 59 * fun(t(n-1), Y(n-1, :)')' + 37 * fun(t(n-2), Y(n-2, :)')' - 9 * fun(t(n-3), Y(n-3, :)')');
         end
 
-        % Next point
-        Y(n+1, :) = Y(1, :) + ga * w(n - (0:(n-1))) * F(1:n, :);
+        Y(n+1, :) = Y(1, :) + ga .* sum(w(n - (0:(n-1)), :) .* F(1:n, :), 1);
     end
 end

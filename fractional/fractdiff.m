@@ -1,30 +1,76 @@
-function dx = fractdiff(x, t, alpha)
-    % Grunwald-Letnikov differintegral
+function dx = fractdiff(x, t, alpha, type)
+    % FRACTDIFF - compute fractial derivative using differintegral
+    %
+    % -FRACTDIFF(x, t, alpha) - calculate fractional derivative d^alpha x/dt^alpha
+    % -FRACTDIFF(x, t, alpha, type) - calculate fractional derivative
+    %        d^alpha x/dt^alpha with specified derivative (default: 'gl')
+    %
+    % Arguments:
+    %   x     - left side values (points) to take derivative from [N,M]
+    %   t     - argument values to integrate along [N,1]
+    %   alpha - differintegral order [1,M]
+    %   type  - type of differintegral:
+    %           * 'gl' for Grunwald-Letnikov
+    %           * 'crl' for Caputo/Riemann-Liouville
 
     assert(length(t) > 1, 't length should be > 1')
-
     [N, M] = size(x);
-    
-    % recurrent
-    w = zeros(1, N);
-    w(1) = 1;
-    for j = 2:N
-        w(j) = w(j-1) * (1 - (1 + alpha) / (j - 1));
+
+    if (~exist('type', 'var'))
+        type = 'gl';
     end
+
+    if (isscalar(alpha))
+        alpha = alpha * ones(1, M);
+    end
+
+    nalpha = ceil(alpha);
+    idx = 1:M;
+    ints = abs(nalpha - alpha) < 1e-6;
+    nintidx = idx(~ints);
     
     dx = zeros(N, M);
-    dx(1, :) = x(1, :) * (t(2) - t(1))^(-alpha);
     
-    for i = 2:N
-        h = (t(i) - t(i - 1));
-        for j = 1:i
-            s = w(j) * x(i - j + 1, :);
-            if (norm(s) < h * h)
-                break;
+    % compute integer orders
+    for j = idx(ints)
+        dx(:, j) = fcompose(@(x)diff4(x, t), nalpha(j), x(:, j)); 
+    end
+
+    if (isempty(nintidx))
+        return
+    end
+    
+    % first point
+    dx(1, nintidx) = gamma(alpha(nintidx) + 1) .* (t(2) - t(1)).^(-alpha(nintidx)) .* (x(2, nintidx) - x(1, nintidx));
+
+    switch type
+        case 'gl'
+            % recurrent formula for weights
+            w = ones(N, M);
+            for j = 2:N
+                w(j, :) = w(j-1, :) .* (1 - (1 + alpha) / (j - 1));
             end
-            dx(i, :) = dx(i, :) + s;
-        end
-        
-        dx(i, :) = dx(i, :) * h^(-alpha);
+            
+            for i = 2:N
+                idx = 1:i;
+                dx(i, nintidx) = (t(i) - t(i - 1)).^(-alpha(nintidx)) .* sum(w(idx, nintidx) .* x(i + 1 - idx, nintidx), 1);
+            end
+        case 'crl'
+            % weights pre-calculation
+            w = (1:N-1)'.^alpha - (0:N-2)'.^alpha;
+    
+            for i = 1 : N-1
+                dx(i, :) = gamma(alpha(nintidx) + 1) .* (t(i+1) - t(i)).^(-alpha(nintidx)) .* (x(i+1, nintidx) - x(1, nintidx));
+                if (i > 1)
+                    idx = 1:i-1;
+                    dx(i, nintidx) = dx(i, nintidx) - sum(w(idx + 1, nintidx) .* dx(i - idx, nintidx), 1);
+                end
+            end
+        otherwise
+            if (ischar(type) || isstring(type))
+                error(['Type ', type, ' is not supported']);
+            else
+                error('Type should be a string or character array');
+            end
     end
 end
